@@ -11,11 +11,11 @@ begin
   //Setting Up Bombs
   while bomb_count <> 0 do
   begin
-  var x := Random(0, 15);
-  var y := Random(0, 15);
+    var x := Random(0, 15);
+    var y := Random(0, 15);
     if not grid[y, x].contains_mine then grid[y, x].contains_mine := true
       else continue;
-  bomb_count -= 1;
+    bomb_count -= 1;
   end;
   
   //Setting x and y positions for each cell
