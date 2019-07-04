@@ -3,7 +3,7 @@
 interface 
 Uses GraphABC;
 
-const CellSize = 45;
+const CellSize = Round(ScreenHeight / 20);
 
 type Cell = class
   x, y: integer;
