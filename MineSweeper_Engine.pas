@@ -3,6 +3,7 @@ unit MineSweeper_Engine;
 interface 
 Uses GraphABC;
 
+procedure UpdateWindow();
 const CellSize = Round(ScreenHeight / 20);
 const CellsInRow = 16;
 const CellsInCol = 16;
@@ -23,6 +24,15 @@ end;
 
 implementation
 
+procedure UpdateWindow();
+begin
+  try 
+    Redraw();
+  except
+  
+  end;
+end;
+
 constructor Cell.Create(x, y: integer; mine: boolean);
 begin
   self.contains_mine := mine;
@@ -36,14 +46,24 @@ end;
 
 procedure Cell.Draw();
 begin
-  if self.revealed then SetBrushColor(rgb(187, 187, 187))
-    else SetBrushColor(rgb(133, 133, 133));
-  if self.contains_mine then SetBrushColor(clLime);
+  if self.revealed then SetBrushColor(rgb(153, 153, 153))
+    else SetBrushColor(rgb(204, 204, 204));
+  // Mine Color if self.contains_mine then SetBrushColor(clLime);
   if self.flag_is_put then SetBrushColor(clRed);
   Rectangle(self.x1, self.y1, self.x2, self.y2);
   //Number
   SetFontSize(20);
-  DrawTextCentered(x1, y1, x2, y2, number);
+  SetFontName('Times New Roman');
+  SetFontStyle(fsBold);
+  if self.number = 1 then SetFontColor(rgb(0, 0, 255));
+  if self.number = 2 then SetFontColor(rgb(0, 153, 0));
+  if self.number = 3 then SetFontColor(rgb(255, 0, 0));
+  if self.number = 4 then SetFontColor(rgb(0, 0, 153));
+  if self.number = 5 then SetFontColor(rgb(102, 0, 0));
+  if self.number = 6 then SetFontColor(rgb(163, 73, 164));
+  if self.number = 7 then SetFontColor(rgb(255, 128, 0));
+  if self.number = 8 then SetFontColor(rgb(0, 0, 0));
+  if (self.number > 0) and (self.revealed) then DrawTextCentered(x1, y1, x2, y2, number);
 end;
 
 procedure Cell.Click(mouseButton: integer);
