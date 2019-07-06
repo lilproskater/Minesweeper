@@ -5,8 +5,9 @@ Uses GraphABC;
 
 const CellSize = Round(ScreenHeight / 20);
 const CellsInRow = 16;
+const CellsInCol = 16;
 
-var bomb_is_pressed: boolean;
+var mine_is_pressed: boolean;
 
 type Cell = class
   x1, y1, x2, y2: integer;
@@ -37,19 +38,21 @@ procedure Cell.Draw();
 begin
   if self.revealed then SetBrushColor(rgb(187, 187, 187))
     else SetBrushColor(rgb(133, 133, 133));
+  if self.contains_mine then SetBrushColor(clLime);
   if self.flag_is_put then SetBrushColor(clRed);
   Rectangle(self.x1, self.y1, self.x2, self.y2);
   //Number
+  SetFontSize(20);
   DrawTextCentered(x1, y1, x2, y2, number);
 end;
 
 procedure Cell.Click(mouseButton: integer);
 begin
   if (mouseButton = 1) and not (self.flag_is_put) then self.revealed := true;
-  if (mouseButton = 1) and (self.revealed) and (self.contains_mine) then bomb_is_pressed := true;
+  if (mouseButton = 1) and (self.revealed) and (self.contains_mine) then mine_is_pressed := true;
   if (mouseButton = 2) and not (self.revealed) then self.flag_is_put := not self.flag_is_put;
 end;
 
 begin
-  bomb_is_pressed := false;
+  mine_is_pressed := false;
 end.
