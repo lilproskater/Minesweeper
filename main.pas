@@ -1,9 +1,7 @@
 Uses GraphABC, MineSweeper_Engine;
 
-var grid: array [0..CellsInCol - 1, 0..CellsInRow - 1] of Cell;
-    first_click, app_is_running: boolean;
-    victory: boolean;
-    
+var app_is_running: boolean;
+    bombs_in_grid: integer;
     
 procedure Init_Party();
 begin
@@ -24,14 +22,13 @@ begin
     end;
   
   //Setting Up Bombs
-  var bomb_count := 40;
-  while bomb_count <> 0 do
+  while bombs_in_grid > 0 do
   begin
     var x := Random(0, CellsInRow - 1);
     var y := Random(0, CellsInCol - 1);
     if not grid[y, x].contains_mine then grid[y, x].contains_mine := true
       else continue;
-    bomb_count -= 1;
+    bombs_in_grid -= 1;    
   end;
   
   //Setting Up Numbers
@@ -55,33 +52,13 @@ begin
     end;
 end;
 
-procedure Draw_Grid();
-begin
-  for var y := 0 to CellsInCol - 1 do
-    for var x := 0 to CellsInRow - 1 do
-      grid[y, x].Draw();
-  UpdateWindow();
-end;
-
 procedure CheckWon();
 begin
   var count_unrevealed := 0;
   for var y := 0 to CellsInCol - 1 do
     for var x := 0 to CellsInRow - 1 do
      if not grid[y, x].revealed then count_unrevealed += 1;
-  if count_unrevealed = 40 then victory := true;
-end;
-
-procedure PartyIsLose();
-begin
-  ClearWindow(clBlack);
-  UpdateWindow();
-end;
-
-procedure PartyIsWon();
-begin
-  ClearWindow(clOrange);
-  UpdateWindow();
+  if count_unrevealed = bombs_in_grid then victory := true;
 end;
 
 procedure MouseUp(MouseX, MouseY, mouseButton: integer);
@@ -105,18 +82,39 @@ begin
   end;
 end;
 
+procedure Draw_Grid();
+begin
+  for var y := 0 to CellsInCol - 1 do
+    for var x := 0 to CellsInRow - 1 do
+      grid[y, x].Draw();
+  UpdateWindow();
+end;
+
+procedure PartyIsLose();
+begin
+  ClearWindow(clBlack);
+  UpdateWindow();
+end;
+
+procedure PartyIsWon();
+begin
+  ClearWindow(clOrange);
+  UpdateWindow();
+end;
+
 procedure Main_SetUp();
 begin
   SetWindowSize(CellsInRow * CellSize, CellsInCol * CellSize);
   Window.CenterOnScreen;
   Window.IsFixedSize := true;
   Window.Title := 'MineSweeper';
+  bombs_in_grid := 40;
   Init_Party();
   LockDrawing();
   OnMouseUp := MouseUp;
   app_is_running := true;
   first_click := true;
-  victory := false;  
+  victory := false;
 end;
 
 procedure ExitGame();
