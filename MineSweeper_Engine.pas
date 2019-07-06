@@ -6,7 +6,7 @@ Uses GraphABC;
 const CellSize = Round(ScreenHeight / 20);
 const CellsInRow = 16;
 
-var EndGame: boolean;
+var bomb_is_pressed: boolean;
 
 type Cell = class
   x1, y1, x2, y2: integer;
@@ -43,10 +43,10 @@ end;
 procedure Cell.Click(mouseButton: integer);
 begin
   if mouseButton = 1 then self.revealed := true;
-  if (mouseButton = 1) and (self.contains_mine) then EndGame := true;
+  if (mouseButton = 1) and (self.contains_mine) then bomb_is_pressed := true;
   if mouseButton = 2 then self.flag_is_put := not self.flag_is_put;
 end;
 
 begin
-  EndGame := false;
+  bomb_is_pressed := false;
 end.
