@@ -36,15 +36,15 @@ procedure Cell.Draw();
 begin
   if self.revealed then SetBrushColor(rgb(187, 187, 187))
     else SetBrushColor(rgb(133, 133, 133));
-  if self.contains_mine then SetBrushColor(clRed);
+  if self.flag_is_put then SetBrushColor(clRed);
   Rectangle(self.x1, self.y1, self.x1 + CellSize, self.y1 + CellSize);
 end;
 
 procedure Cell.Click(mouseButton: integer);
 begin
-  if mouseButton = 1 then self.revealed := true;
-  if (mouseButton = 1) and (self.contains_mine) then bomb_is_pressed := true;
-  if mouseButton = 2 then self.flag_is_put := not self.flag_is_put;
+  if (mouseButton = 1) and not (self.flag_is_put) then self.revealed := true;
+  if (mouseButton = 1) and (self.revealed) and (self.contains_mine) then bomb_is_pressed := true;
+  if (mouseButton = 2) and not (self.revealed) then self.flag_is_put := not self.flag_is_put;
 end;
 
 begin
