@@ -1,6 +1,6 @@
 Uses GraphABC, MineSweeper_Engine;
 
-var grid: array [0..15, 0..15] of Cell;
+var grid: array [0..CellsInCol - 1, 0..CellsInRow - 1] of Cell;
     first_click, app_is_running: boolean;
     victory: boolean;
     
@@ -107,7 +107,7 @@ end;
 
 procedure Main_SetUp();
 begin
-  SetWindowSize(16 * CellSize, 16 * CellSize);
+  SetWindowSize(CellsInRow * CellSize, CellsInCol * CellSize);
   Window.CenterOnScreen;
   Window.IsFixedSize := true;
   Window.Title := 'MineSweeper';
