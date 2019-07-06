@@ -1,6 +1,7 @@
 Uses GraphABC, MineSweeper_Engine;
 
 var grid: array [0..15, 0..15] of Cell;
+    first_click: boolean;
     
 procedure Init_Party();
 begin
@@ -34,7 +35,6 @@ end;
 
 procedure EndParty();
 begin
-  //End Game Interface
   ClearWindow(clBlack);
   Redraw();
 end;
@@ -49,11 +49,22 @@ end;
 
 procedure MouseUp(MouseX, MouseY, mouseButton: integer);
 begin
-  Window.Title := 'MouseX: ' + MouseX + ' MouseY: ' + MouseY;
-  if not EndGame then
+  if not bomb_is_pressed then
   begin
-    //Realize pressing cells
-    grid[Ceil(MouseY / (WindowHeight / CellsInRow)) - 1, Ceil(MouseX / (WindowWidth / CellsInRow)) - 1].Click(mouseButton);
+    var y := Trunc(MouseY / (WindowHeight / CellsInRow));
+    var x := Trunc(MouseX / (WindowWidth / CellsInRow));
+    grid[y, x].Click(mouseButton);
+    if first_click then 
+    begin
+      if bomb_is_pressed then
+      begin
+        bomb_is_pressed := false;
+        while grid[y, x].contains_mine do
+          Init_Party();
+        grid[y, x].Click(mouseButton);
+      end;
+      first_click := false;
+    end;
   end;
 end;
 
@@ -66,13 +77,14 @@ begin
   Init_Party();
   LockDrawing();
   OnMouseUp := MouseUp;
+  first_click := true;
 end;
 
 begin
   Main_SetUp();
   while true do
   begin
-    if not EndGame then
+    if not bomb_is_pressed then
       Draw_Grid()
     else 
       EndParty();
