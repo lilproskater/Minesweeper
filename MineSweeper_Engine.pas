@@ -1,78 +1,138 @@
-unit MineSweeper_Engine;
+Uses GraphABC, MineSweeper_Engine;
 
-interface 
-Uses GraphABC;
+var app_is_running: boolean;
+    bombs_in_grid: integer;
+    
+procedure Init_Party();
+begin
+  //Firstly setting all cells empty
+  //Setting x and y positions for each cell
+  var pos_x := 0;
+  var pos_y := 0;
+  for var y := 0 to CellsInCol - 1 do
+    for var x := 0 to CellsInRow - 1 do
+    begin
+      grid[y, x] := new Cell(pos_x, pos_y, false);
+      if pos_x + CellSize >= WindowWidth then
+      begin
+        pos_x := 0;
+        pos_y += CellSize;
+      end
+      else pos_x += CellSize;  
+    end;
+  
+  //Setting Up Bombs
+  while bombs_in_grid > 0 do
+  begin
+    var x := Random(0, CellsInRow - 1);
+    var y := Random(0, CellsInCol - 1);
+    if not grid[y, x].contains_mine then grid[y, x].contains_mine := true
+      else continue;
+    bombs_in_grid -= 1;    
+  end;
+  
+  //Setting Up Numbers
+  for var y := 0 to CellsInCol - 1 do
+    for var x := 0 to CellsInRow - 1 do
+    begin
+      var number := 0;
+      try
+        if grid[y, x - 1].contains_mine then number += 1;
+        if grid[y - 1, x].contains_mine then number += 1;
+        if grid[y + 1, x].contains_mine then number += 1;
+        if grid[y, x + 1].contains_mine then number += 1;
+        if grid[y - 1, x - 1].contains_mine then number += 1;
+        if grid[y - 1, x + 1].contains_mine then number += 1;
+        if grid[y + 1, x - 1].contains_mine then number += 1;
+        if grid[y + 1, x + 1].contains_mine then number += 1;
+      except on System.IndexOutOfRangeException do
 
-procedure UpdateWindow();
-const CellSize = Round(ScreenHeight / 20);
-const CellsInRow = 16;
-const CellsInCol = 16;
-
-var mine_is_pressed: boolean;
-
-type Cell = class
-  x1, y1, x2, y2: integer;
-  number: integer;
-  contains_mine: boolean;
-  revealed: boolean;
-  flag_is_put: boolean;
-  constructor Create(x,y: integer; mine: boolean);
-  procedure Click(mouseButton: integer);
-  procedure Draw();
+      end;
+      grid[y, x].number := number;
+    end;
 end;
 
-
-implementation
-
-procedure UpdateWindow();
+procedure CheckWon();
 begin
-  try 
-    Redraw();
-  except
-  
+  var count_unrevealed := 0;
+  for var y := 0 to CellsInCol - 1 do
+    for var x := 0 to CellsInRow - 1 do
+     if not grid[y, x].revealed then count_unrevealed += 1;
+  if count_unrevealed = bombs_in_grid then victory := true;
+end;
+
+procedure MouseUp(MouseX, MouseY, mouseButton: integer);
+begin
+  if not mine_is_pressed then
+  begin
+    var y := Trunc(MouseY / (WindowHeight / CellsInCol));
+    var x := Trunc(MouseX / (WindowWidth / CellsInRow));
+    grid[y, x].Click(mouseButton);
+    if first_click then 
+    begin
+      if mine_is_pressed then
+      begin
+        mine_is_pressed := false;
+        while grid[y, x].contains_mine do
+          Init_Party();
+        grid[y, x].Click(mouseButton);
+      end;
+      first_click := false;
+    end;
   end;
 end;
 
-constructor Cell.Create(x, y: integer; mine: boolean);
+procedure Draw_Grid();
 begin
-  self.contains_mine := mine;
-  self.x1 := x;
-  self.y1 := y;
-  self.x2 := self.x1 + CellSize;
-  self.y2 := self.y1 + CellSize;
-  self.revealed := false;
-  self.flag_is_put := false;
+  for var y := 0 to CellsInCol - 1 do
+    for var x := 0 to CellsInRow - 1 do
+      grid[y, x].Draw();
+  UpdateWindow();
 end;
 
-procedure Cell.Draw();
+procedure PartyIsLose();
 begin
-  if self.revealed then SetBrushColor(rgb(153, 153, 153))
-    else SetBrushColor(rgb(204, 204, 204));
-  // Mine Color if self.contains_mine then SetBrushColor(clLime);
-  if self.flag_is_put then SetBrushColor(clRed);
-  Rectangle(self.x1, self.y1, self.x2, self.y2);
-  //Number
-  SetFontSize(20);
-  SetFontName('Times New Roman');
-  SetFontStyle(fsBold);
-  if self.number = 1 then SetFontColor(rgb(0, 0, 255));
-  if self.number = 2 then SetFontColor(rgb(0, 153, 0));
-  if self.number = 3 then SetFontColor(rgb(255, 0, 0));
-  if self.number = 4 then SetFontColor(rgb(0, 0, 153));
-  if self.number = 5 then SetFontColor(rgb(102, 0, 0));
-  if self.number = 6 then SetFontColor(rgb(163, 73, 164));
-  if self.number = 7 then SetFontColor(rgb(255, 128, 0));
-  if self.number = 8 then SetFontColor(rgb(0, 0, 0));
-  if (self.number > 0) and (self.revealed) then DrawTextCentered(x1, y1, x2, y2, number);
+  ClearWindow(clBlack);
+  UpdateWindow();
 end;
 
-procedure Cell.Click(mouseButton: integer);
+procedure PartyIsWon();
 begin
-  if (mouseButton = 1) and not (self.flag_is_put) then self.revealed := true;
-  if (mouseButton = 1) and (self.revealed) and (self.contains_mine) then mine_is_pressed := true;
-  if (mouseButton = 2) and not (self.revealed) then self.flag_is_put := not self.flag_is_put;
+  ClearWindow(clOrange);
+  UpdateWindow();
+end;
+
+procedure Main_SetUp();
+begin
+  SetWindowSize(CellsInRow * CellSize, CellsInCol * CellSize);
+  Window.CenterOnScreen;
+  Window.IsFixedSize := true;
+  Window.Title := 'MineSweeper';
+  bombs_in_grid := 40;
+  Init_Party();
+  LockDrawing();
+  OnMouseUp := MouseUp;
+  app_is_running := true;
+  first_click := true;
+  victory := false;
+end;
+
+procedure ExitGame();
+begin
+  app_is_running := false;
 end;
 
 begin
-  mine_is_pressed := false;
+  Main_SetUp();
+  while app_is_running do
+  begin
+    OnClose := ExitGame;
+    if mine_is_pressed then
+      PartyIsLose()
+    else if victory then
+      PartyIsWon()
+    else
+      Draw_Grid();
+    CheckWon();
+    end;
 end.
