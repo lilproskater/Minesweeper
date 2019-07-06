@@ -1,7 +1,9 @@
 Uses GraphABC, MineSweeper_Engine;
 
 var grid: array [0..15, 0..15] of Cell;
-    first_click: boolean;
+    first_click, app_is_running: boolean;
+    victory: boolean;
+    
     
 procedure Init_Party();
 begin
@@ -53,18 +55,33 @@ begin
     end;
 end;
 
-procedure EndParty();
-begin
-  ClearWindow(clBlack);
-  Redraw();
-end;
-
 procedure Draw_Grid();
 begin
   for var y := 0 to CellsInCol - 1 do
     for var x := 0 to CellsInRow - 1 do
       grid[y, x].Draw();
-  Redraw();
+  UpdateWindow();
+end;
+
+procedure CheckWon();
+begin
+  var count_unrevealed := 0;
+  for var y := 0 to CellsInCol - 1 do
+    for var x := 0 to CellsInRow - 1 do
+     if not grid[y, x].revealed then count_unrevealed += 1;
+  if count_unrevealed = 40 then victory := true;
+end;
+
+procedure PartyIsLose();
+begin
+  ClearWindow(clBlack);
+  UpdateWindow();
+end;
+
+procedure PartyIsWon();
+begin
+  ClearWindow(clOrange);
+  UpdateWindow();
 end;
 
 procedure MouseUp(MouseX, MouseY, mouseButton: integer);
@@ -97,16 +114,27 @@ begin
   Init_Party();
   LockDrawing();
   OnMouseUp := MouseUp;
+  app_is_running := true;
   first_click := true;
+  victory := false;  
+end;
+
+procedure ExitGame();
+begin
+  app_is_running := false;
 end;
 
 begin
   Main_SetUp();
-  while true do
+  while app_is_running do
   begin
-    if not mine_is_pressed then
-      Draw_Grid()
-    else 
-      EndParty();
-  end;
+    OnClose := ExitGame;
+    if mine_is_pressed then
+      PartyIsLose()
+    else if victory then
+      PartyIsWon()
+    else
+      Draw_Grid();
+    CheckWon();
+    end;
 end.
