@@ -10,6 +10,7 @@ var bomb_is_pressed: boolean;
 
 type Cell = class
   x1, y1, x2, y2: integer;
+  number: integer;
   contains_mine: boolean;
   revealed: boolean;
   flag_is_put: boolean;
@@ -27,7 +28,7 @@ begin
   self.x1 := x;
   self.y1 := y;
   self.x2 := self.x1 + CellSize;
-  self.y2 := self.y2 + CellSize;
+  self.y2 := self.y1 + CellSize;
   self.revealed := false;
   self.flag_is_put := false;
 end;
@@ -37,7 +38,9 @@ begin
   if self.revealed then SetBrushColor(rgb(187, 187, 187))
     else SetBrushColor(rgb(133, 133, 133));
   if self.flag_is_put then SetBrushColor(clRed);
-  Rectangle(self.x1, self.y1, self.x1 + CellSize, self.y1 + CellSize);
+  Rectangle(self.x1, self.y1, self.x2, self.y2);
+  //Number
+  DrawTextCentered(x1, y1, x2, y2, number);
 end;
 
 procedure Cell.Click(mouseButton: integer);
