@@ -64,7 +64,21 @@ end;
 
 procedure OpenCells(y_grid, x_grid: integer);
 begin
-  
+  if grid[y_grid, x_grid].number = 0 then
+  begin
+    if grid[y_grid, x_grid].revealed then exit;
+    if grid[y_grid, x_grid].number <> 0 then exit;
+    if not grid[y_grid, x_grid].flag_is_put then grid[y_grid, x_grid].Click(1);
+    if y_grid > 0 then OpenCells(y_grid - 1, x_grid);
+    if y_grid < CellsInCol - 1 then OpenCells(y_grid + 1, x_grid);
+    if x_grid > 0 then OpenCells(y_grid, x_grid - 1);
+    if x_grid < CellsInRow - 1 then OpenCells(y_grid, x_grid + 1);
+    if (y_grid > 0) and (x_grid > 0) then if grid[y_grid - 1, x_grid - 1].number <> 0 then grid[y_grid - 1, x_grid - 1].revealed := true; 
+    if (y_grid > 0) and (x_grid < CellsInRow - 2) then if grid[y_grid - 1, x_grid + 1].number <> 0 then grid[y_grid - 1, x_grid + 1].revealed := true;
+    if (y_grid < CellsInCol - 2) and (x_grid > 0) then if grid[y_grid + 1, x_grid - 1].number <> 0 then grid[y_grid + 1, x_grid - 1].revealed := true;
+    if (y_grid < CellsInCol - 2) and (x_grid < CellsInRow - 2) then if grid[y_grid + 1, x_grid + 1].number <> 0 then grid[y_grid + 1, x_grid + 1].revealed := true;
+  end
+  else if not grid[y_grid, x_grid].flag_is_put then grid[y_grid, x_grid].Click(1);
 end;
 
 procedure MouseUp(MouseX, MouseY, mouseButton: integer);
@@ -73,18 +87,21 @@ begin
   begin
     var y := Trunc(MouseY / (WindowHeight / CellsInCol));
     var x := Trunc(MouseX / (WindowWidth / CellsInRow));
-    grid[y, x].Click(mouseButton);
-    OpenCells(y, x);
-    if first_click then 
+    if mouseButton = 2 then grid[y, x].Click(2);
+    if mouseButton  = 1 then
     begin
-      if mine_is_pressed then
+      OpenCells(y, x);
+      if first_click then 
       begin
-        mine_is_pressed := false;
-        while grid[y, x].contains_mine do
-          Init_Party();
-        grid[y, x].Click(mouseButton);
+        if mine_is_pressed then
+        begin
+          mine_is_pressed := false;
+          while grid[y, x].contains_mine do
+            Init_Party();
+          grid[y, x].Click(mouseButton);
+        end;
+        first_click := false;
       end;
-      first_click := false;
     end;
   end;
 end;
