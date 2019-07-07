@@ -2,10 +2,10 @@ Uses GraphABC, MineSweeper_Engine;
 
 const CellsInRow = 16;
 const CellsInCol = 16;
+const bombsInGrid = 40;
 
 var grid: array [0..CellsInCol - 1, 0..CellsInRow - 1] of Cell; 
     app_is_running: boolean;
-    bombs_in_grid: integer;
     
 procedure Init_Party();
 begin
@@ -26,13 +26,14 @@ begin
     end;
   
   //Setting Up Bombs
-  while bombs_in_grid > 0 do
+  var bombs_counter := bombsInGrid;
+  while bombs_counter > 0 do
   begin
     var x := Random(0, CellsInRow - 1);
     var y := Random(0, CellsInCol - 1);
     if not grid[y, x].contains_mine then grid[y, x].contains_mine := true
       else continue;
-    bombs_in_grid -= 1;    
+    bombs_counter -= 1;    
   end;
   
   //Setting Up Numbers
@@ -58,7 +59,12 @@ begin
   for var y := 0 to CellsInCol - 1 do
     for var x := 0 to CellsInRow - 1 do
      if not grid[y, x].revealed then count_unrevealed += 1;
-  if count_unrevealed = bombs_in_grid then victory := true;
+  if count_unrevealed = bombsInGrid then victory := true;
+end;
+
+procedure OpenCells(y_grid, x_grid: integer);
+begin
+  
 end;
 
 procedure MouseUp(MouseX, MouseY, mouseButton: integer);
@@ -68,6 +74,7 @@ begin
     var y := Trunc(MouseY / (WindowHeight / CellsInCol));
     var x := Trunc(MouseX / (WindowWidth / CellsInRow));
     grid[y, x].Click(mouseButton);
+    OpenCells(y, x);
     if first_click then 
     begin
       if mine_is_pressed then
@@ -108,7 +115,6 @@ begin
   Window.CenterOnScreen;
   Window.IsFixedSize := true;
   Window.Title := 'MineSweeper';
-  bombs_in_grid := 40;
   Init_Party();
   LockDrawing();
   OnMouseUp := MouseUp;
