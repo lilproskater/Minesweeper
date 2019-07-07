@@ -64,33 +64,36 @@ end;
 
 procedure OpenCells(y_grid, x_grid: integer);
 begin
-  if grid[y_grid, x_grid].number = 0 then
-  begin
-    if grid[y_grid, x_grid].revealed then exit;
-    if grid[y_grid, x_grid].number <> 0 then exit;
-    if not grid[y_grid, x_grid].flag_is_put then grid[y_grid, x_grid].Click(1);
-    if y_grid > 0 then OpenCells(y_grid - 1, x_grid);
-    if y_grid < CellsInCol - 1 then OpenCells(y_grid + 1, x_grid);
-    if x_grid > 0 then OpenCells(y_grid, x_grid - 1);
-    if x_grid < CellsInRow - 1 then OpenCells(y_grid, x_grid + 1);
-    if (y_grid > 0) and (x_grid > 0) then if grid[y_grid - 1, x_grid - 1].number <> 0 then grid[y_grid - 1, x_grid - 1].revealed := true; 
-    if (y_grid > 0) and (x_grid < CellsInRow - 2) then if grid[y_grid - 1, x_grid + 1].number <> 0 then grid[y_grid - 1, x_grid + 1].revealed := true;
-    if (y_grid < CellsInCol - 2) and (x_grid > 0) then if grid[y_grid + 1, x_grid - 1].number <> 0 then grid[y_grid + 1, x_grid - 1].revealed := true;
-    if (y_grid < CellsInCol - 2) and (x_grid < CellsInRow - 2) then if grid[y_grid + 1, x_grid + 1].number <> 0 then grid[y_grid + 1, x_grid + 1].revealed := true;
-  end
-  else if not grid[y_grid, x_grid].flag_is_put then grid[y_grid, x_grid].Click(1);
+  if grid[y_grid, x_grid].contains_mine then exit;
+  if grid[y_grid, x_grid].revealed then exit;
+  if grid[y_grid, x_grid].number <> 0 then exit;
+  if not grid[y_grid, x_grid].flag_is_put then grid[y_grid, x_grid].Click(1);
+  if y_grid > 0 then OpenCells(y_grid - 1, x_grid);
+  if y_grid < CellsInCol - 1 then OpenCells(y_grid + 1, x_grid);
+  if x_grid > 0 then OpenCells(y_grid, x_grid - 1);
+  if x_grid < CellsInRow - 1 then OpenCells(y_grid, x_grid + 1);
+  
+  //Reveal nearby cells with nubmers
+  if y_grid > 0 then if grid[y_grid - 1, x_grid].number <> 0 then grid[y_grid - 1, x_grid].revealed := true;
+  if y_grid < CellsInCol - 2 then if grid[y_grid + 1, x_grid].number <> 0 then grid[y_grid + 1, x_grid].revealed := true;  
+  if x_grid > 0 then if grid[y_grid, x_grid - 1].number <> 0 then grid[y_grid, x_grid - 1].revealed := true;
+  if x_grid < CellsInRow - 2 then if grid[y_grid, x_grid + 1].number <> 0 then grid[y_grid, x_grid + 1].revealed := true;
+  if (y_grid > 0) and (x_grid > 0) then if grid[y_grid - 1, x_grid - 1].number <> 0 then grid[y_grid - 1, x_grid - 1].revealed := true;
+  if (y_grid > 0) and (x_grid < CellsInRow - 2) then if grid[y_grid - 1, x_grid + 1].number <> 0 then grid[y_grid - 1, x_grid + 1].revealed := true;
+  if (y_grid < CellsInCol - 2) and (x_grid > 0) then if grid[y_grid + 1, x_grid - 1].number <> 0 then grid[y_grid + 1, x_grid - 1].revealed := true;
+  if (y_grid < CellsInCol - 2) and (x_grid < CellsInRow - 2) then if grid[y_grid + 1, x_grid + 1].number <> 0 then grid[y_grid + 1, x_grid + 1].revealed := true;
 end;
 
-procedure MouseUp(MouseX, MouseY, mouseButton: integer);
+procedure MouseDown(MouseX, MouseY, mouseButton: integer);
 begin
   if not mine_is_pressed then
   begin
     var y := Trunc(MouseY / (WindowHeight / CellsInCol));
     var x := Trunc(MouseX / (WindowWidth / CellsInRow));
-    if mouseButton = 2 then grid[y, x].Click(2);
-    if mouseButton  = 1 then
+    if mouseButton = 1 then 
     begin
-      OpenCells(y, x);
+      if (grid[y, x].number <> 0) or (grid[y, x].contains_mine) then grid[y, x].Click(1)
+        else OpenCells(y, x);
       if first_click then 
       begin
         if mine_is_pressed then
@@ -98,11 +101,13 @@ begin
           mine_is_pressed := false;
           while grid[y, x].contains_mine do
             Init_Party();
-          grid[y, x].Click(mouseButton);
+            if grid[y, x].number <> 0 then grid[y, x].Click(1)
+              else OpenCells(y, x); 
         end;
         first_click := false;
       end;
-    end;
+    end
+      else grid[y, x].Click(mouseButton);
   end;
 end;
 
@@ -117,6 +122,18 @@ end;
 procedure PartyIsLose();
 begin
   ClearWindow(clBlack);
+  var pressed_x := 0;
+  var pressed_y := 0;
+  for var y := 0 to CellsInCol - 1 do
+    for var x := 0 to CellsInRow - 1 do
+      if (grid[y, x].revealed) and (grid[y, x].contains_mine) then
+      begin
+        pressed_y := y;
+        pressed_x := x;
+      end;
+  SetFontColor(clRed);
+  SetFontSize(100);
+  DrawTextCentered(0, 0, WindowWidth, WindowHeight, 'Bomb [' + pressed_y + ', ' + pressed_x + '] was pressed!');
   UpdateWindow();
 end;
 
@@ -134,7 +151,7 @@ begin
   Window.Title := 'MineSweeper';
   Init_Party();
   LockDrawing();
-  OnMouseUp := MouseUp;
+  OnMouseDown := MouseDown;
   app_is_running := true;
   first_click := true;
   victory := false;
