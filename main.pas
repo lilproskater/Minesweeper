@@ -122,18 +122,6 @@ end;
 procedure PartyIsLose();
 begin
   ClearWindow(clBlack);
-  var pressed_x := 0;
-  var pressed_y := 0;
-  for var y := 0 to CellsInCol - 1 do
-    for var x := 0 to CellsInRow - 1 do
-      if (grid[y, x].revealed) and (grid[y, x].contains_mine) then
-      begin
-        pressed_y := y;
-        pressed_x := x;
-      end;
-  SetFontColor(clRed);
-  SetFontSize(100);
-  DrawTextCentered(0, 0, WindowWidth, WindowHeight, 'Bomb [' + pressed_y + ', ' + pressed_x + '] was pressed!');
   UpdateWindow();
 end;
 
