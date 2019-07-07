@@ -1,6 +1,7 @@
 Uses GraphABC, MineSweeper_Engine;
 
-var app_is_running: boolean;
+var grid: array [0..CellsInCol - 1, 0..CellsInRow - 1] of Cell; 
+    app_is_running: boolean;
     bombs_in_grid: integer;
     
 procedure Init_Party();
@@ -36,18 +37,14 @@ begin
     for var x := 0 to CellsInRow - 1 do
     begin
       var number := 0;
-      try
-        if grid[y, x - 1].contains_mine then number += 1;
-        if grid[y - 1, x].contains_mine then number += 1;
-        if grid[y + 1, x].contains_mine then number += 1;
-        if grid[y, x + 1].contains_mine then number += 1;
-        if grid[y - 1, x - 1].contains_mine then number += 1;
-        if grid[y - 1, x + 1].contains_mine then number += 1;
-        if grid[y + 1, x - 1].contains_mine then number += 1;
-        if grid[y + 1, x + 1].contains_mine then number += 1;
-      except on System.IndexOutOfRangeException do
-
-      end;
+      if x > 0 then if grid[y, x - 1].contains_mine then number += 1;
+      if y > 0 then if grid[y - 1, x].contains_mine then number += 1;
+      if y < CellsInCol - 2 then if grid[y + 1, x].contains_mine then number += 1;
+      if x < CellsInRow - 2 then if grid[y, x + 1].contains_mine then number += 1;
+      if (x > 0) and (y > 0) then if grid[y - 1, x - 1].contains_mine then number += 1;
+      if (y > 0) and (x < CellsInRow - 2) then if grid[y - 1, x + 1].contains_mine then number += 1;
+      if (y < CellsInCol - 2) and (x > 0) then if grid[y + 1, x - 1].contains_mine then number += 1;
+      if (y < CellsInCol - 2) and (x < CellsInRow - 2) then if grid[y + 1, x + 1].contains_mine then number += 1;
       grid[y, x].number := number;
     end;
 end;
