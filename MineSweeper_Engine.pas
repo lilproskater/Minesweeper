@@ -46,6 +46,8 @@ procedure Cell.Draw();
 begin
   if self.revealed then SetBrushColor(rgb(153, 153, 153))
     else SetBrushColor(rgb(204, 204, 204));
+  // Mine Color 
+  if self.contains_mine then SetBrushColor(clLime);
   if self.flag_is_put then SetBrushColor(clRed);
   Rectangle(self.x1, self.y1, self.x2, self.y2);
   //Number
