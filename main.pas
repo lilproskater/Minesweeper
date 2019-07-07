@@ -1,5 +1,8 @@
 Uses GraphABC, MineSweeper_Engine;
 
+const CellsInRow = 16;
+const CellsInCol = 16;
+
 var grid: array [0..CellsInCol - 1, 0..CellsInRow - 1] of Cell; 
     app_is_running: boolean;
     bombs_in_grid: integer;
