@@ -52,7 +52,7 @@ begin
   if self.flag_is_put then SetBrushColor(clRed);
   
   // Mine Color 
-  if (self.contains_mine) and (mine_is_pressed) then SetBrushColor(clLime);
+  if (self.contains_mine) and (mine_is_pressed) then SetBrushColor(rgb(0, 0, 0));
   
   Rectangle(self.x1, self.y1, self.x2, self.y2);
   
@@ -71,7 +71,7 @@ begin
   if self.number = 7 then SetFontColor(rgb(255, 128, 0));
   if self.number = 8 then SetFontColor(rgb(0, 0, 0));
   
-  if (self.number > 0) and (self.revealed) then DrawTextCentered(x1, y1, x2, y2, number);
+  if (self.number > 0) and (self.revealed) and not (self.contains_mine) then DrawTextCentered(x1, y1, x2, y2, number);
 end;
 
 procedure Cell.Click(mouseButton: integer);
