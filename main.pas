@@ -43,12 +43,12 @@ begin
       var number := 0;
       if x > 0 then if grid[y, x - 1].contains_mine then number += 1;
       if y > 0 then if grid[y - 1, x].contains_mine then number += 1;
-      if y < CellsInCol - 2 then if grid[y + 1, x].contains_mine then number += 1;
-      if x < CellsInRow - 2 then if grid[y, x + 1].contains_mine then number += 1;
+      if y < CellsInCol - 1 then if grid[y + 1, x].contains_mine then number += 1;
+      if x < CellsInRow - 1 then if grid[y, x + 1].contains_mine then number += 1;
       if (x > 0) and (y > 0) then if grid[y - 1, x - 1].contains_mine then number += 1;
-      if (y > 0) and (x < CellsInRow - 2) then if grid[y - 1, x + 1].contains_mine then number += 1;
-      if (y < CellsInCol - 2) and (x > 0) then if grid[y + 1, x - 1].contains_mine then number += 1;
-      if (y < CellsInCol - 2) and (x < CellsInRow - 2) then if grid[y + 1, x + 1].contains_mine then number += 1;
+      if (y > 0) and (x < CellsInRow - 1) then if grid[y - 1, x + 1].contains_mine then number += 1;
+      if (y < CellsInCol - 1) and (x > 0) then if grid[y + 1, x - 1].contains_mine then number += 1;
+      if (y < CellsInCol - 1) and (x < CellsInRow - 1) then if grid[y + 1, x + 1].contains_mine then number += 1;
       grid[y, x].number := number;
     end;
 end;
@@ -101,8 +101,8 @@ begin
           mine_is_pressed := false;
           while grid[y, x].contains_mine do
             Init_Party();
-            if grid[y, x].number <> 0 then grid[y, x].Click(1)
-              else OpenCells(y, x); 
+          if grid[y, x].number <> 0 then grid[y, x].Click(1)
+            else OpenCells(y, x); 
         end;
         first_click := false;
       end;
@@ -116,26 +116,31 @@ begin
   for var y := 0 to CellsInCol - 1 do
     for var x := 0 to CellsInRow - 1 do
       grid[y, x].Draw();
+  if mine_is_pressed then
+  begin
+    SetFontColor(clRed);
+    SetFontSize(100);
+    DrawTextCentered(0, 0, WindowWidth, WindowHeight, 'You Lose!');
+  end;
+  if victory then
+  begin
+    SetFontColor(clLime);
+    SetFontSize(100);
+    DrawTextCentered(0, 0, WindowWidth, WindowHeight, 'You Won!');
+  end;
   UpdateWindow();
 end;
 
-procedure PartyIsLose();
-begin
-  Draw_Grid();
-end;
-
-procedure PartyIsWon();
-begin
-  ClearWindow(clOrange);
-  UpdateWindow();
-end;
-
-procedure Main_SetUp();
+procedure Window_SetUp();
 begin
   SetWindowSize(CellsInRow * CellSize, CellsInCol * CellSize);
   Window.CenterOnScreen;
   Window.IsFixedSize := true;
-  Window.Title := 'MineSweeper';
+end;
+
+procedure Main_SetUp();
+begin
+  Window_SetUp();
   Init_Party();
   LockDrawing();
   OnMouseDown := MouseDown;
@@ -152,12 +157,7 @@ begin
   while app_is_running do
   begin
     OnClose := ExitGame;
-    if mine_is_pressed then
-      PartyIsLose()
-    else if victory then
-      PartyIsWon()
-    else
-      Draw_Grid();
+    Draw_Grid();
     CheckWon();
-    end;
+  end;
 end.
