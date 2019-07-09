@@ -69,19 +69,19 @@ begin
   if grid[y_grid, x_grid].number <> 0 then exit;
   if not grid[y_grid, x_grid].flag_is_put then grid[y_grid, x_grid].Click(1);
   if y_grid > 0 then OpenCells(y_grid - 1, x_grid);
-  if y_grid < CellsInCol - 2 then OpenCells(y_grid + 1, x_grid);
+  if y_grid < CellsInCol - 1 then OpenCells(y_grid + 1, x_grid);
   if x_grid > 0 then OpenCells(y_grid, x_grid - 1);
-  if x_grid < CellsInRow - 2 then OpenCells(y_grid, x_grid + 1);
+  if x_grid < CellsInRow - 1 then OpenCells(y_grid, x_grid + 1);
   
   //Reveal nearby cells with nubmers
   if y_grid > 0 then if grid[y_grid - 1, x_grid].number <> 0 then grid[y_grid - 1, x_grid].revealed := true;
-  if y_grid < CellsInCol - 2 then if grid[y_grid + 1, x_grid].number <> 0 then grid[y_grid + 1, x_grid].revealed := true;  
+  if y_grid < CellsInCol - 1 then if grid[y_grid + 1, x_grid].number <> 0 then grid[y_grid + 1, x_grid].revealed := true;  
   if x_grid > 0 then if grid[y_grid, x_grid - 1].number <> 0 then grid[y_grid, x_grid - 1].revealed := true;
-  if x_grid < CellsInRow - 2 then if grid[y_grid, x_grid + 1].number <> 0 then grid[y_grid, x_grid + 1].revealed := true;
+  if x_grid < CellsInRow - 1 then if grid[y_grid, x_grid + 1].number <> 0 then grid[y_grid, x_grid + 1].revealed := true;
   if (y_grid > 0) and (x_grid > 0) then if grid[y_grid - 1, x_grid - 1].number <> 0 then grid[y_grid - 1, x_grid - 1].revealed := true;
-  if (y_grid > 0) and (x_grid < CellsInRow - 2) then if grid[y_grid - 1, x_grid + 1].number <> 0 then grid[y_grid - 1, x_grid + 1].revealed := true;
-  if (y_grid < CellsInCol - 2) and (x_grid > 0) then if grid[y_grid + 1, x_grid - 1].number <> 0 then grid[y_grid + 1, x_grid - 1].revealed := true;
-  if (y_grid < CellsInCol - 2) and (x_grid < CellsInRow - 2) then if grid[y_grid + 1, x_grid + 1].number <> 0 then grid[y_grid + 1, x_grid + 1].revealed := true;
+  if (y_grid > 0) and (x_grid < CellsInRow - 1) then if grid[y_grid - 1, x_grid + 1].number <> 0 then grid[y_grid - 1, x_grid + 1].revealed := true;
+  if (y_grid < CellsInCol - 1) and (x_grid > 0) then if grid[y_grid + 1, x_grid - 1].number <> 0 then grid[y_grid + 1, x_grid - 1].revealed := true;
+  if (y_grid < CellsInCol - 1) and (x_grid < CellsInRow - 1) then if grid[y_grid + 1, x_grid + 1].number <> 0 then grid[y_grid + 1, x_grid + 1].revealed := true;
 end;
 
 procedure MouseDown(MouseX, MouseY, mouseButton: integer);
