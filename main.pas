@@ -43,12 +43,12 @@ begin
       var number := 0;
       if x > 0 then if grid[y, x - 1].contains_mine then number += 1;
       if y > 0 then if grid[y - 1, x].contains_mine then number += 1;
-      if y < CellsInCol - 1 then if grid[y + 1, x].contains_mine then number += 1;
-      if x < CellsInRow - 1 then if grid[y, x + 1].contains_mine then number += 1;
+      if y < CellsInCol - 2 then if grid[y + 1, x].contains_mine then number += 1;
+      if x < CellsInRow - 2 then if grid[y, x + 1].contains_mine then number += 1;
       if (x > 0) and (y > 0) then if grid[y - 1, x - 1].contains_mine then number += 1;
-      if (y > 0) and (x < CellsInRow - 1) then if grid[y - 1, x + 1].contains_mine then number += 1;
-      if (y < CellsInCol - 1) and (x > 0) then if grid[y + 1, x - 1].contains_mine then number += 1;
-      if (y < CellsInCol - 1) and (x < CellsInRow - 1) then if grid[y + 1, x + 1].contains_mine then number += 1;
+      if (y > 0) and (x < CellsInRow - 2) then if grid[y - 1, x + 1].contains_mine then number += 1;
+      if (y < CellsInCol - 2) and (x > 0) then if grid[y + 1, x - 1].contains_mine then number += 1;
+      if (y < CellsInCol - 2) and (x < CellsInRow - 2) then if grid[y + 1, x + 1].contains_mine then number += 1;
       grid[y, x].number := number;
     end;
 end;
