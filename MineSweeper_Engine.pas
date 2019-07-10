@@ -77,7 +77,7 @@ end;
 procedure Cell.Click(mouseButton: integer);
 begin
   if (mouseButton = 1) and not (self.flag_is_put) then self.revealed := true;
-  if (mouseButton = 2) and not (self.revealed) then self.flag_is_put := not self.flag_is_put;
+  if (mouseButton = 2) and not (self.revealed) and not (first_click) then self.flag_is_put := not self.flag_is_put;
   if (self.revealed) and (self.contains_mine) then mine_is_pressed := true;
 end;
 
