@@ -1,9 +1,7 @@
-﻿unit MineSweeper_Engine;
+unit MineSweeper_Engine;
 
 interface 
 Uses GraphABC;
-
-const CellSize = Round(ScreenHeight / 20);
 
 type Cell = class
   x1, y1, x2, y2: integer;
@@ -11,7 +9,7 @@ type Cell = class
   contains_mine: boolean;
   revealed: boolean;
   flag_is_put: boolean;
-  constructor Create(x,y: integer; mine: boolean);
+  constructor Create(x1,y1, x2, y2: integer; mine: boolean);
   procedure Click(mouseButton: integer);
   procedure Draw();
 end;
@@ -20,13 +18,13 @@ var mine_is_pressed, first_click: boolean;
     
 implementation
 
-constructor Cell.Create(x, y: integer; mine: boolean);
+constructor Cell.Create(x1, y1, x2, y2: integer; mine: boolean);
 begin
   self.contains_mine := mine;
-  self.x1 := x;
-  self.y1 := y;
-  self.x2 := self.x1 + CellSize;
-  self.y2 := self.y1 + CellSize;
+  self.x1 := x1;
+  self.y1 := y1;
+  self.x2 := x2;
+  self.y2 := y2;
   self.revealed := false;
   self.flag_is_put := false;
 end;
