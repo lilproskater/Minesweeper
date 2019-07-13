@@ -30,7 +30,6 @@ begin
   begin
     while main_menu do
     begin
-      Window_SetUp();   
       OnMouseDown := MainMenu_MD;
       OnKeyDown := MainMenu_KD;
       MainMenu_Interface();
