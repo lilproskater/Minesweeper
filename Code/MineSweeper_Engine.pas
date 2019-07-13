@@ -1,6 +1,6 @@
 unit MineSweeper_Engine;
 
-interface 
+interface
 Uses GraphABC;
 
 type Cell = class
@@ -15,7 +15,7 @@ type Cell = class
 end;
 
 var mine_is_pressed, first_click: boolean;
-    
+
 implementation
 
 constructor Cell.Create(x1, y1, x2, y2: integer; mine: boolean);
@@ -34,30 +34,31 @@ begin
   //Cell color
   if self.revealed then SetBrushColor(rgb(153, 153, 153))
     else SetBrushColor(rgb(204, 204, 204));
-  
+
   //Flag Color
   if self.flag_is_put then SetBrushColor(clRed);
-  
-  // Mine Color 
+
+  // Mine Color
   if (self.contains_mine) and (mine_is_pressed) then SetBrushColor(rgb(0, 0, 0));
-  
+
   Rectangle(self.x1, self.y1, self.x2, self.y2);
-  
+
   //Number
   SetFontSize(20);
   SetFontName('Times New Roman');
   SetFontStyle(fsBold);
-  
-  //Setting Color of Font Depending on Number 
-  if self.number = 1 then SetFontColor(rgb(0, 0, 255));
-  if self.number = 2 then SetFontColor(rgb(0, 153, 0));
-  if self.number = 3 then SetFontColor(rgb(255, 0, 0));
-  if self.number = 4 then SetFontColor(rgb(0, 0, 153));
-  if self.number = 5 then SetFontColor(rgb(102, 0, 0));
-  if self.number = 6 then SetFontColor(rgb(163, 73, 164));
-  if self.number = 7 then SetFontColor(rgb(255, 128, 0));
-  if self.number = 8 then SetFontColor(rgb(0, 0, 0));
-  
+
+  //Setting Color of Font Depending on Number
+  case self.number of
+    1: SetFontColor(rgb(0, 0, 255));
+    2: SetFontColor(rgb(0, 153, 0));
+    3: SetFontColor(rgb(255, 0, 0));
+    4: SetFontColor(rgb(0, 0, 153));
+    5: SetFontColor(rgb(102, 0, 0));
+    6: SetFontColor(rgb(163, 73, 164));
+    7: SetFontColor(rgb(255, 128, 0));
+    8: SetFontColor(rgb(0, 0, 0));
+
   if (self.number > 0) and (self.revealed) and not (self.contains_mine) then DrawTextCentered(x1, y1, x2, y2, number);
 end;
 

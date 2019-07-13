@@ -3,9 +3,9 @@ unit Menues;
 interface
 Uses GraphABC, MineSweeper_game;
 
-var 
+var
 //Menues boolean
-  main_menu, playing, statistics, settings, quit:boolean;
+  main_menu, playing, statistics, settings, quit: boolean;
 
 procedure MainMenu_Interface();
 procedure MainMenu_MD(MouseX, MouseY, mouseButton: integer);
@@ -37,20 +37,20 @@ type Button = class
   end;
   procedure Click();
   begin
-  
+
   end;
 end;
 
-var 
+var
 //Genreal
     background: picture;
     btn_color, btn_border_color, font_color: color;
     pen_width: integer;
 
 //MainMenu
-    play_btn, stats_btn, settings_btn, quit_btn: button;    
-    
-    
+    play_btn, stats_btn, settings_btn, quit_btn: button;
+
+
 procedure MainMenu_Interface();
 begin
   background := new Picture('data/Background.png');
@@ -60,9 +60,9 @@ begin
   SetFontName('Tahoma');
   SetFontStyle(fsBold);
   DrawTextCentered(0, 0, WindowWidth, Round(WindowHeight / 6), 'MineSweeper');
-  play_btn := new Button(Round(WindowWidth / 6), Round(WindowHeight / 6), WindowWidth - Round(WindowWidth / 6), Round(WindowHeight / 3.272), 'Играть'); 
-  stats_btn := new Button(Round(WindowWidth / 6), Round(WindowHeight / 2.618), WindowWidth - Round(WindowWidth / 6), Round(WindowHeight / 1.92), 'Статистика'); 
-  settings_btn := new Button(Round(WindowWidth / 6), Round(WindowHeight / 1.674), WindowWidth - Round(WindowWidth / 6), Round(WindowHeight / 1.358), 'Настройки'); 
+  play_btn := new Button(Round(WindowWidth / 6), Round(WindowHeight / 6), WindowWidth - Round(WindowWidth / 6), Round(WindowHeight / 3.272), 'Играть');
+  stats_btn := new Button(Round(WindowWidth / 6), Round(WindowHeight / 2.618), WindowWidth - Round(WindowWidth / 6), Round(WindowHeight / 1.92), 'Статистика');
+  settings_btn := new Button(Round(WindowWidth / 6), Round(WindowHeight / 1.674), WindowWidth - Round(WindowWidth / 6), Round(WindowHeight / 1.358), 'Настройки');
   quit_btn := new Button(Round(WindowWidth / 6), Round(WindowHeight / 1.23), WindowWidth - Round(WindowWidth / 6), Round(WindowHeight / 1.051), 'Выход');
   SetPenColor(btn_border_color);
   SetBrushColor(btn_color);
@@ -77,7 +77,7 @@ end;
 
 procedure MainMenu_MD(MouseX, MouseY, mouseButton: integer);
 begin
-  if (mouseButton = 1) and (MouseX > play_btn.x1) and (MouseY > play_btn.y1) and (MouseX < play_btn.x2) and (MouseY < play_btn.y2) then 
+  if (mouseButton = 1) and (MouseX > play_btn.x1) and (MouseY > play_btn.y1) and (MouseX < play_btn.x2) and (MouseY < play_btn.y2) then
   begin
     playing := true;
     Init_party();
@@ -102,7 +102,7 @@ end;
 
 procedure Statistics_MD(MouseX, MouseY, mouseButton: integer);
 begin
-  
+
 end;
 
 procedure Settings_Interface();
@@ -120,12 +120,12 @@ end;
 
 procedure Settings_MD(MouseX, MouseY, mouseButton: integer);
 begin
-  
+
 end;
 
 procedure MainMenu_KD(key: integer);
 begin
-  if key = VK_Enter then 
+  if key = VK_Enter then
   begin
     playing := true;
     Init_party();

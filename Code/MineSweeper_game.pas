@@ -21,14 +21,14 @@ procedure ExitWindow_MD(MouseX, MouseY, mouseButton: integer);
 
 implementation
 
-var grid: array [0..CellsInRow - 1, 0..CellsInRow - 1] of Cell; 
+var grid: array [0..CellsInRow - 1, 0..CellsInRow - 1] of Cell;
 
 procedure UpdateWindow();
 begin
-  try 
+  try
     Redraw();
   except
-  
+    // TODO: handle possible exceptions
   end;
 end;
 
@@ -42,7 +42,7 @@ begin
   if y_grid < CellsInRow - 1 then OpenCells(y_grid + 1, x_grid);
   if x_grid > 0 then OpenCells(y_grid, x_grid - 1);
   if x_grid < CellsInRow - 1 then OpenCells(y_grid, x_grid + 1);
-  
+
   //Reveal nearby cells with nubmers
   if y_grid > 0 then if grid[y_grid - 1, x_grid].number <> 0 then grid[y_grid - 1, x_grid].Click(1);
   if y_grid < CellsInRow - 1 then if grid[y_grid + 1, x_grid].number <> 0 then grid[y_grid + 1, x_grid].Click(1);
@@ -67,27 +67,21 @@ begin
   var pos_y := 0;
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
-    begin
-      grid[y, x] := new Cell(pos_x, pos_y, pos_x + CellSize, pos_y + CellSize, false);
-      if pos_x + CellSize >= WindowWidth then
-      begin
-        pos_x := 0;
-        pos_y += CellSize;
-      end
-      else pos_x += CellSize;  
-    end;
-  
+      grid[y, x] := new Cell(x*CellSize, y*CellSize, (x + 1) * CellSize, (y + 1) + CellSize, false);
+
   //Setting Up Bombs
   var bombs_counter := bombsInGrid;
   while bombs_counter > 0 do
   begin
     var x := Random(0, CellsInRow - 1);
     var y := Random(0, CellsInRow - 1);
-    if not grid[y, x].contains_mine then grid[y, x].contains_mine := true
-      else continue;
-    bombs_counter -= 1;    
+    if not grid[y, x].contains_mine then
+      grid[y, x].contains_mine := true
+    else
+      continue;
+    bombs_counter -= 1;
   end;
-  
+
   //Setting Up Numbers
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
@@ -111,11 +105,11 @@ begin
   begin
     var y := Trunc(MouseY / (WindowHeight / CellsInRow));
     var x := Trunc(MouseX / (WindowWidth / CellsInRow));
-    if mouseButton = 1 then 
+    if mouseButton = 1 then
     begin
       if (grid[y, x].number <> 0) or (grid[y, x].contains_mine) then grid[y, x].Click(1)
         else OpenCells(y, x);
-      if first_click then 
+      if first_click then
       begin
         if mine_is_pressed then
         begin
@@ -123,7 +117,7 @@ begin
           while grid[y, x].contains_mine do
             Init_Party();
           if grid[y, x].number <> 0 then grid[y, x].Click(1)
-            else OpenCells(y, x); 
+            else OpenCells(y, x);
         end;
         first_click := false;
       end;
@@ -134,7 +128,7 @@ begin
   begin
     if (mouseButton = 1) and (MouseX > Round(WindowWidth / 36)) and (MouseY > WindowHeight - Round(WindowHeight / 6)) and (MouseX < Round(WindowWidth / 6)) and (MouseY < WindowHeight - Round(WindowHeight / 36)) then exit_playing := true;
     if (mouseButton = 1) and (MouseX > Round(WindowWidth /4.235)) and (MouseY > WindowHeight - Round(WindowHeight / 6)) and (MouseX < Round(WindowWidth / 2.666)) and (MouseY < WindowHeight - Round(WindowHeight / 36)) then Init_Party();
-  end; 
+  end;
 end;
 
 procedure Draw_Grid();
@@ -193,8 +187,10 @@ end;
 
 procedure GameKeyDown(key: integer);
 begin
-  if (key = VK_Escape) and not (lose) and not (victory) then exit_window_show := true
-    else exit_window_show := false;
+  if (key = VK_Escape) and not (lose) and not (victory) then
+    exit_window_show := true
+  else
+    exit_window_show := false;
   if (key = VK_Escape) and ((lose) or (victory)) then
     exit_playing := true;
   if (key = VK_Enter) and ((lose) or (victory)) then
@@ -225,7 +221,7 @@ begin
     exit_window_show := false;
     exit_playing := true;
   end;
-  
+
   if (mouseButton = 1) and (MouseX > Round(WindowWidth / 1.945)) and (MouseY > WindowHeight - Round(WindowHeight / 3.6)) and (MouseX < Round(WindowWidth / 1.531)) and (MouseY < WindowHeight - Round(WindowHeight / 7.2)) then
     exit_window_show := false;
 end;
@@ -234,7 +230,7 @@ end;
 procedure ExitWindow_KD(key: integer);
 begin
   if key = VK_Escape then exit_window_show := false;
-  if key = VK_Enter then 
+  if key = VK_Enter then
   begin
     exit_window_show := false;
     exit_playing := true;
