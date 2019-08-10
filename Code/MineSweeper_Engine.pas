@@ -49,15 +49,16 @@ begin
   SetFontStyle(fsBold);
   
   //Setting Color of Font Depending on Number 
-  if self.number = 1 then SetFontColor(rgb(0, 0, 255));
-  if self.number = 2 then SetFontColor(rgb(0, 153, 0));
-  if self.number = 3 then SetFontColor(rgb(255, 0, 0));
-  if self.number = 4 then SetFontColor(rgb(0, 0, 153));
-  if self.number = 5 then SetFontColor(rgb(102, 0, 0));
-  if self.number = 6 then SetFontColor(rgb(163, 73, 164));
-  if self.number = 7 then SetFontColor(rgb(255, 128, 0));
-  if self.number = 8 then SetFontColor(rgb(0, 0, 0));
-  
+    case self.number of
+      1: SetFontColor(rgb(0, 0, 255));
+      2: SetFontColor(rgb(0, 153, 0));
+      3: SetFontColor(rgb(255, 0, 0));
+      4: SetFontColor(rgb(0, 0, 153));
+      5: SetFontColor(rgb(102, 0, 0));
+      6: SetFontColor(rgb(163, 73, 164));
+      7: SetFontColor(rgb(255, 128, 0));
+      8: SetFontColor(rgb(0, 0, 0));
+    end;
   if (self.number > 0) and (self.revealed) and not (self.contains_mine) then DrawTextCentered(x1, y1, x2, y2, number);
 end;
 
