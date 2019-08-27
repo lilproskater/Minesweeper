@@ -20,11 +20,11 @@ implementation
 
 constructor Cell.Create(x1, y1, x2, y2: integer; mine: boolean);
 begin
-  self.contains_mine := mine;
   self.x1 := x1;
   self.y1 := y1;
   self.x2 := x2;
   self.y2 := y2;
+  self.contains_mine := mine;
   self.revealed := false;
   self.flag_is_put := false;
 end;
@@ -32,16 +32,16 @@ end;
 procedure Cell.Draw();
 begin
   //Cell color
-  if self.revealed then SetBrushColor(rgb(153, 153, 153))
+  if revealed then SetBrushColor(rgb(153, 153, 153))
     else SetBrushColor(rgb(204, 204, 204));
   
   //Flag Color
-  if self.flag_is_put then SetBrushColor(clRed);
+  if flag_is_put then SetBrushColor(clRed);
   
   // Mine Color 
-  if (self.contains_mine) and (mine_is_pressed) then SetBrushColor(rgb(0, 0, 0));
+  if (contains_mine) and (mine_is_pressed) then SetBrushColor(rgb(0, 0, 0));
   
-  Rectangle(self.x1, self.y1, self.x2, self.y2);
+  Rectangle(x1, y1, x2, y2);
   
   //Number
   SetFontSize(20);
@@ -49,7 +49,7 @@ begin
   SetFontStyle(fsBold);
   
   //Setting Color of Font Depending on Number 
-    case self.number of
+    case number of
       1: SetFontColor(rgb(0, 0, 255));
       2: SetFontColor(rgb(0, 153, 0));
       3: SetFontColor(rgb(255, 0, 0));
@@ -59,13 +59,13 @@ begin
       7: SetFontColor(rgb(255, 128, 0));
       8: SetFontColor(rgb(0, 0, 0));
     end;
-  if (self.number > 0) and (self.revealed) and not (self.contains_mine) then DrawTextCentered(x1, y1, x2, y2, number);
+  if (number > 0) and (revealed) and not (contains_mine) then DrawTextCentered(x1, y1, x2, y2, number);
 end;
 
 procedure Cell.Click(mouseButton: integer);
 begin
-  if (mouseButton = 1) and not (self.flag_is_put) then self.revealed := true;
-  if (mouseButton = 2) and not (self.revealed) and not (first_click) then self.flag_is_put := not self.flag_is_put;
-  if (self.revealed) and (self.contains_mine) then mine_is_pressed := true;
+  if (mouseButton = 1) and not (flag_is_put) then revealed := true;
+  if (mouseButton = 2) and not (revealed) and not (first_click) then flag_is_put := not flag_is_put;
+  if (revealed) and (contains_mine) then mine_is_pressed := true;
 end;
 end.

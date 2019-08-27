@@ -1,10 +1,10 @@
-﻿Uses GraphABC, MineSweeper_game, Menues;
+﻿Uses GraphABC, Menues, MineSweeper_game;
 
 var app_is_running: boolean;
 
 procedure Window_SetUp();
 begin
-  SetWindowSize(CellSize * CellsInRow, CellSize * CellsInRow);
+  SetWindowSize(WindowSize, WindowSize);
   Window.CenterOnScreen;
   Window.Title := 'MineSweeper';
   Window.IsFixedSize := true;
@@ -31,8 +31,8 @@ begin
       begin
         OnMouseDown := GameMouseDown;
         OnKeyDown := GameKeyDown;
-        Draw_Grid();
         CheckGameStatus();
+        Draw_Grid();
         while exit_window_show do
         begin
           OnMouseDown := ExitWindow_MD;

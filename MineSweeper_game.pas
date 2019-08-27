@@ -6,17 +6,18 @@ Uses GraphABC, MineSweeper_Engine;
 const CellsInRow = 16;
 const bombsInGrid = Round(Sqr(CellsInRow) / 6.4);
 const CellSize = Round(ScreenHeight / CellsInRow / 1.2);
+const WindowSize = CellSize * CellsInRow;
 
 var victory, lose, exit_playing, exit_window_show: boolean;
 
 procedure Init_Party();
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);
-procedure Draw_Grid();
-procedure CheckGameStatus();
 procedure GameKeyDown(key: integer);
+procedure CheckGameStatus();
+procedure Draw_Grid();
 procedure ExitWindow_Interface();
-procedure ExitWindow_KD(key: integer);
 procedure ExitWindow_MD(MouseX, MouseY, mouseButton: integer);
+procedure ExitWindow_KD(key: integer);
 
 
 implementation

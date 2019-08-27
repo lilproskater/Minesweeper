@@ -1,4 +1,4 @@
-unit Menues;
+﻿unit Menues;
 
 interface
 Uses GraphABC, MineSweeper_game;
@@ -9,12 +9,14 @@ var
 
 procedure MainMenu_Interface();
 procedure MainMenu_MD(MouseX, MouseY, mouseButton: integer);
+procedure MainMenu_KD(key: integer);
+
 procedure Statistics_Interface();
 procedure Statistics_MD(MouseX, MouseY, mouseButton: integer);
+procedure Statistics_KD(key: integer);
+
 procedure Settings_Interface();
 procedure Settings_MD(MouseX, MouseY, mouseButton: integer);
-procedure MainMenu_KD(key: integer);
-procedure Statistics_KD(key: integer);
 procedure Settings_KD(key: integer);
 
 implementation
@@ -22,22 +24,18 @@ implementation
 type Button = class
   x1, y1, x2, y2: integer;
   text: string;
-  constructor Create(x1_point, y1_point, x2_point, y2_point: integer; btn_text: string);
+  constructor Create(x1, y1, x2, y2: integer; text: string);
   begin
-    x1 := x1_point;
-    y1 := y1_point;
-    x2 := x2_point;
-    y2 := y2_point;
-    text := btn_text;
+    self.x1 := x1;
+    self.y1 := y1;
+    self.x2 := x2;
+    self.y2 := y2;
+    self.text := text;
   end;
   procedure Draw();
   begin
     Rectangle(x1, y1, x2, y2);
     DrawTextCentered(x1, y1, x2, y2, text);
-  end;
-  procedure Click();
-  begin
-  
   end;
 end;
 
@@ -50,7 +48,7 @@ var
 //MainMenu
     play_btn, stats_btn, settings_btn, quit_btn: button;    
     
-    
+//-----------------------------  Main Menu  -----------------------------//
 procedure MainMenu_Interface();
 begin
   background := new Picture('data/Background.png');
@@ -87,6 +85,18 @@ begin
   if (mouseButton = 1) and (MouseX > quit_btn.x1) and (MouseY > quit_btn.y1) and (MouseX < quit_btn.x2) and (MouseY < quit_btn.y2) then quit := true;
 end;
 
+procedure MainMenu_KD(key: integer);
+begin
+  if key = VK_Enter then 
+  begin
+    playing := true;
+    Init_party();
+  end;
+end;
+//-----------------------------------------------------------------------//
+
+
+//-----------------------------  Statistics  -----------------------------//
 procedure Statistics_Interface();
 begin
   background.Draw(0, 0, WindowWidth, WindowHeight);
@@ -105,6 +115,14 @@ begin
   
 end;
 
+procedure Statistics_KD(key: integer);
+begin
+  if key = VK_Escape then statistics := false;
+end;
+//-----------------------------------------------------------------------//
+
+
+//-----------------------------  Settings  -----------------------------//
 procedure Settings_Interface();
 begin
   background.Draw(0, 0, WindowWidth, WindowHeight);
@@ -123,24 +141,12 @@ begin
   
 end;
 
-procedure MainMenu_KD(key: integer);
-begin
-  if key = VK_Enter then 
-  begin
-    playing := true;
-    Init_party();
-  end;
-end;
-
-procedure Statistics_KD(key: integer);
-begin
-  if key = VK_Escape then statistics := false;
-end;
-
 procedure Settings_KD(key: integer);
 begin
   if key = VK_Escape then settings := false;
 end;
+//-----------------------------------------------------------------------//
+
 
 begin
 //General
