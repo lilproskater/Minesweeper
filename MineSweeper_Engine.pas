@@ -32,24 +32,24 @@ end;
 procedure Cell.Draw();
 begin
   //Cell color
-  if revealed then SetBrushColor(rgb(153, 153, 153))
+  if self.revealed then SetBrushColor(rgb(153, 153, 153))
     else SetBrushColor(rgb(204, 204, 204));
   
   //Flag Color
-  if flag_is_put then SetBrushColor(clRed);
+  if self.flag_is_put then SetBrushColor(rgb(255, 0, 0));
   
   // Mine Color 
-  if (contains_mine) and (mine_is_pressed) then SetBrushColor(rgb(0, 0, 0));
+  if (self.contains_mine) and (mine_is_pressed) then SetBrushColor(rgb(0, 0, 0));
   
-  Rectangle(x1, y1, x2, y2);
+  Rectangle(self.x1, self.y1, self.x2, self.y2);
   
   //Number
-  SetFontSize(20);
+  SetFontSize(Round(ScreenHeight / 45));
   SetFontName('Times New Roman');
   SetFontStyle(fsBold);
   
-  //Setting Color of Font Depending on Number 
-    case number of
+  //Setting number color
+    case self.number of
       1: SetFontColor(rgb(0, 0, 255));
       2: SetFontColor(rgb(0, 153, 0));
       3: SetFontColor(rgb(255, 0, 0));
@@ -59,13 +59,13 @@ begin
       7: SetFontColor(rgb(255, 128, 0));
       8: SetFontColor(rgb(0, 0, 0));
     end;
-  if (number > 0) and (revealed) and not (contains_mine) then DrawTextCentered(x1, y1, x2, y2, number);
+  if (self.number > 0) and (self.revealed) and not (self.contains_mine) then DrawTextCentered(x1, y1, x2, y2, self.number);
 end;
 
 procedure Cell.Click(mouseButton: integer);
 begin
-  if (mouseButton = 1) and not (flag_is_put) then revealed := true;
-  if (mouseButton = 2) and not (revealed) and not (first_click) then flag_is_put := not flag_is_put;
-  if (revealed) and (contains_mine) then mine_is_pressed := true;
+  if (mouseButton = 1) and not (self.flag_is_put) then self.revealed := true;
+  if (mouseButton = 2) and not (self.revealed) and not (first_click) then self.flag_is_put := not self.flag_is_put;
+  if (self.revealed) and (self.contains_mine) then mine_is_pressed := true;
 end;
 end.

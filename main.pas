@@ -33,7 +33,7 @@ begin
         OnKeyDown := GameKeyDown;
         CheckGameStatus();
         Draw_Grid();
-        while exit_window_show do
+        while show_exit_window do
         begin
           OnMouseDown := ExitWindow_MD;
           OnKeyDown := ExitWindow_KD;

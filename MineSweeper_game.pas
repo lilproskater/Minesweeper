@@ -4,17 +4,18 @@ interface
 Uses GraphABC, MineSweeper_Engine;
 
 const CellsInRow = 16;
-const bombsInGrid = Round(Sqr(CellsInRow) / 6.4);
 const CellSize = Round(ScreenHeight / CellsInRow / 1.2);
+const bombsInGrid = Round(Sqr(CellsInRow) / 6.4);
 const WindowSize = CellSize * CellsInRow;
 
-var victory, lose, exit_playing, exit_window_show: boolean;
+var victory, lose, exit_playing, show_exit_window: boolean;
 
 procedure Init_Party();
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);
 procedure GameKeyDown(key: integer);
 procedure CheckGameStatus();
 procedure Draw_Grid();
+
 procedure ExitWindow_Interface();
 procedure ExitWindow_MD(MouseX, MouseY, mouseButton: integer);
 procedure ExitWindow_KD(key: integer);
@@ -29,32 +30,12 @@ begin
   try 
     Redraw();
   except
-  
+
   end;
 end;
 
-procedure OpenCells(y_grid, x_grid: integer);
-begin
-  if grid[y_grid, x_grid].contains_mine then exit;
-  if grid[y_grid, x_grid].revealed then exit;
-  if grid[y_grid, x_grid].number <> 0 then exit;
-  if not grid[y_grid, x_grid].flag_is_put then grid[y_grid, x_grid].Click(1);
-  if y_grid > 0 then OpenCells(y_grid - 1, x_grid);
-  if y_grid < CellsInRow - 1 then OpenCells(y_grid + 1, x_grid);
-  if x_grid > 0 then OpenCells(y_grid, x_grid - 1);
-  if x_grid < CellsInRow - 1 then OpenCells(y_grid, x_grid + 1);
-  
-  //Reveal nearby cells with nubmers
-  if y_grid > 0 then if grid[y_grid - 1, x_grid].number <> 0 then grid[y_grid - 1, x_grid].Click(1);
-  if y_grid < CellsInRow - 1 then if grid[y_grid + 1, x_grid].number <> 0 then grid[y_grid + 1, x_grid].Click(1);
-  if x_grid > 0 then if grid[y_grid, x_grid - 1].number <> 0 then grid[y_grid, x_grid - 1].Click(1);
-  if x_grid < CellsInRow - 1 then if grid[y_grid, x_grid + 1].number <> 0 then grid[y_grid, x_grid + 1].Click(1);
-  if (y_grid > 0) and (x_grid > 0) then if grid[y_grid - 1, x_grid - 1].number <> 0 then grid[y_grid - 1, x_grid - 1].Click(1);
-  if (y_grid > 0) and (x_grid < CellsInRow - 1) then if grid[y_grid - 1, x_grid + 1].number <> 0 then grid[y_grid - 1, x_grid + 1].Click(1);
-  if (y_grid < CellsInRow - 1) and (x_grid > 0) then if grid[y_grid + 1, x_grid - 1].number <> 0 then grid[y_grid + 1, x_grid - 1].Click(1);
-  if (y_grid < CellsInRow - 1) and (x_grid < CellsInRow - 1) then if grid[y_grid + 1, x_grid + 1].number <> 0 then grid[y_grid + 1, x_grid + 1].Click(1);
-end;
 
+//-----------------------------  Initialize Party  -----------------------------//
 procedure Init_Party();
 begin
   //Firstly setting all cells empty
@@ -105,7 +86,35 @@ begin
       grid[y, x].number := number;
     end;
 end;
+//-----------------------------------------------------------------------//
 
+
+//-----------------------------  Open Cells Recursively  -----------------------------//
+procedure OpenCells(y_grid, x_grid: integer);
+begin
+  if grid[y_grid, x_grid].contains_mine then exit;
+  if grid[y_grid, x_grid].revealed then exit;
+  if grid[y_grid, x_grid].number <> 0 then exit;
+  if not grid[y_grid, x_grid].flag_is_put then grid[y_grid, x_grid].Click(1);
+  if y_grid > 0 then OpenCells(y_grid - 1, x_grid);
+  if y_grid < CellsInRow - 1 then OpenCells(y_grid + 1, x_grid);
+  if x_grid > 0 then OpenCells(y_grid, x_grid - 1);
+  if x_grid < CellsInRow - 1 then OpenCells(y_grid, x_grid + 1);
+  
+  //Reveal nearby cells with nubmers
+  if y_grid > 0 then if grid[y_grid - 1, x_grid].number <> 0 then grid[y_grid - 1, x_grid].Click(1);
+  if y_grid < CellsInRow - 1 then if grid[y_grid + 1, x_grid].number <> 0 then grid[y_grid + 1, x_grid].Click(1);
+  if x_grid > 0 then if grid[y_grid, x_grid - 1].number <> 0 then grid[y_grid, x_grid - 1].Click(1);
+  if x_grid < CellsInRow - 1 then if grid[y_grid, x_grid + 1].number <> 0 then grid[y_grid, x_grid + 1].Click(1);
+  if (y_grid > 0) and (x_grid > 0) then if grid[y_grid - 1, x_grid - 1].number <> 0 then grid[y_grid - 1, x_grid - 1].Click(1);
+  if (y_grid > 0) and (x_grid < CellsInRow - 1) then if grid[y_grid - 1, x_grid + 1].number <> 0 then grid[y_grid - 1, x_grid + 1].Click(1);
+  if (y_grid < CellsInRow - 1) and (x_grid > 0) then if grid[y_grid + 1, x_grid - 1].number <> 0 then grid[y_grid + 1, x_grid - 1].Click(1);
+  if (y_grid < CellsInRow - 1) and (x_grid < CellsInRow - 1) then if grid[y_grid + 1, x_grid + 1].number <> 0 then grid[y_grid + 1, x_grid + 1].Click(1);
+end;
+//-----------------------------------------------------------------------//
+
+
+//-----------------------------  Game Mouse Down  -----------------------------//
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);
 begin
   if not (lose) and not (victory) then
@@ -137,7 +146,40 @@ begin
     if (mouseButton = 1) and (MouseX > Round(WindowWidth /4.235)) and (MouseY > WindowHeight - Round(WindowHeight / 6)) and (MouseX < Round(WindowWidth / 2.666)) and (MouseY < WindowHeight - Round(WindowHeight / 36)) then Init_Party();
   end; 
 end;
+//-----------------------------------------------------------------------//
 
+
+//-----------------------------  Game Key Down  -----------------------------//
+procedure GameKeyDown(key: integer);
+begin
+  if (key = VK_Escape) and not (lose) and not (victory) then show_exit_window := true
+    else show_exit_window := false;
+  if (key = VK_Escape) and ((lose) or (victory)) then
+    exit_playing := true;
+  if (key = VK_Enter) and ((lose) or (victory)) then
+    Init_Party();
+end;
+//-----------------------------------------------------------------------//
+
+
+//-----------------------------  Check Game Status  -----------------------------//
+procedure CheckGameStatus();
+begin
+  if mine_is_pressed then
+    lose := true
+  else
+  begin
+    var count_unrevealed := 0;
+    for var y := 0 to CellsInRow - 1 do
+      for var x := 0 to CellsInRow - 1 do
+       if not grid[y, x].revealed then count_unrevealed += 1;
+    if count_unrevealed = bombsInGrid then victory := true;
+  end;
+end;
+//-----------------------------------------------------------------------//
+
+
+//-----------------------------  Draw Grid  -----------------------------//
 procedure Draw_Grid();
 begin
   SetPenWidth(1);
@@ -177,31 +219,10 @@ begin
  end;
   UpdateWindow();
 end;
+//-----------------------------------------------------------------------//
 
-procedure CheckGameStatus();
-begin
-  if mine_is_pressed then
-    lose := true
-  else
-  begin
-    var count_unrevealed := 0;
-    for var y := 0 to CellsInRow - 1 do
-      for var x := 0 to CellsInRow - 1 do
-       if not grid[y, x].revealed then count_unrevealed += 1;
-    if count_unrevealed = bombsInGrid then victory := true;
-  end;
-end;
 
-procedure GameKeyDown(key: integer);
-begin
-  if (key = VK_Escape) and not (lose) and not (victory) then exit_window_show := true
-    else exit_window_show := false;
-  if (key = VK_Escape) and ((lose) or (victory)) then
-    exit_playing := true;
-  if (key = VK_Enter) and ((lose) or (victory)) then
-    Init_Party();
-end;
-
+//-----------------------------  Exit Window Interface  -----------------------------//
 procedure ExitWindow_Interface();
 begin
   SetPenColor(rgb(255, 255, 255));
@@ -218,29 +239,35 @@ begin
   DrawTextCentered(Round(WindowWidth / 1.945), WindowHeight - Round(WindowHeight / 3.6), Round(WindowWidth / 1.531), WindowHeight - Round(WindowHeight / 7.2), 'Нет');
   UpdateWindow();
 end;
+//-----------------------------------------------------------------------//
 
+
+//-----------------------------  Exit Window Mouse Down  -----------------------------//
 procedure ExitWindow_MD(MouseX, MouseY, mouseButton: integer);
 begin
   if (mouseButton = 1) and (MouseX > Round(WindowWidth / 3.272)) and (MouseY > WindowHeight - Round(WindowHeight / 3.6)) and (MouseX < Round(WindowWidth / 2.25)) and (MouseY < WindowHeight - Round(WindowHeight / 7.2)) then
   begin
-    exit_window_show := false;
+    show_exit_window := false;
     exit_playing := true;
   end;
   
   if (mouseButton = 1) and (MouseX > Round(WindowWidth / 1.945)) and (MouseY > WindowHeight - Round(WindowHeight / 3.6)) and (MouseX < Round(WindowWidth / 1.531)) and (MouseY < WindowHeight - Round(WindowHeight / 7.2)) then
-    exit_window_show := false;
+    show_exit_window := false;
 end;
+//-----------------------------------------------------------------------//
 
 
+//-----------------------------  Exit Window Key Down  -----------------------------//
 procedure ExitWindow_KD(key: integer);
 begin
-  if key = VK_Escape then exit_window_show := false;
+  if key = VK_Escape then show_exit_window := false;
   if key = VK_Enter then 
   begin
-    exit_window_show := false;
+    show_exit_window := false;
     exit_playing := true;
   end;
 end;
+//-----------------------------------------------------------------------//
 
 begin
   victory := false;
