@@ -4,7 +4,7 @@ var app_is_running: boolean;
 
 procedure Window_SetUp();
 begin
-  SetWindowSize(WindowSize, WindowSize + StatusBarSize);
+  SetWindowSize(Width, Height);
   Window.CenterOnScreen;
   Window.Title := 'MineSweeper';
   Window.IsFixedSize := true;

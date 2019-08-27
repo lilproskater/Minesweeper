@@ -6,8 +6,9 @@ Uses GraphABC, MineSweeper_Engine;
 const CellsInRow = 16;
 const CellSize = Round(ScreenHeight / CellsInRow / 1.4);
 const bombsInGrid = Round(Sqr(CellsInRow) / 6.4);
-const WindowSize = CellSize * CellsInRow;
-const StatusBarSize = Round(CellSize * 2.523134);
+const StatusBarSize = CellSize * 2;
+const Width = CellSize * CellsInRow;
+const Height = Width + StatusBarSize;
 
 var victory, lose, exit_playing, show_exit_window: boolean;
 
