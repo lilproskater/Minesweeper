@@ -48,6 +48,7 @@ var
 //MainMenu
     play_btn, stats_btn, settings_btn, quit_btn: button;    
     
+
 //-----------------------------  Main Menu  -----------------------------//
 procedure MainMenu_Interface();
 begin

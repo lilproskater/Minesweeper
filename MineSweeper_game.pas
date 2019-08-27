@@ -10,7 +10,8 @@ const StatusBarSize = CellSize * 2;
 const Width = CellSize * CellsInRow;
 const Height = Width + StatusBarSize;
 
-var victory, lose, exit_playing, show_exit_window: boolean;
+var
+  victory, lose, exit_playing, show_exit_window: boolean;
 
 procedure Init_Party();
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);

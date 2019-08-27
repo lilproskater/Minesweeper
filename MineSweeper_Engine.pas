@@ -14,7 +14,8 @@ type Cell = class
   procedure Draw();
 end;
 
-var mine_is_pressed, first_click: boolean;
+var
+  mine_is_pressed, first_click: boolean;
     
 implementation
 

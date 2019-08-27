@@ -1,6 +1,7 @@
 ﻿Uses GraphABC, Menues, MineSweeper_game;
 
-var app_is_running: boolean;
+var
+  app_is_running: boolean;
 
 procedure Window_SetUp();
 begin
