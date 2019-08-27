@@ -204,7 +204,7 @@ begin
  if (lose) or (victory) then
  begin
    ClearWindow(argb(130, 40, 40, 40));
-   SetFontSize(Round(WindowHeight / 7.2));
+   SetFontSize(Round(WindowHeight / 9.5));
    if lose then
    begin
     SetFontColor(clRed);
