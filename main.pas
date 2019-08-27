@@ -4,7 +4,7 @@ var app_is_running: boolean;
 
 procedure Window_SetUp();
 begin
-  SetWindowSize(WindowSize, WindowSize);
+  SetWindowSize(WindowSize, WindowSize + StatusBarSize);
   Window.CenterOnScreen;
   Window.Title := 'MineSweeper';
   Window.IsFixedSize := true;
@@ -32,7 +32,7 @@ begin
         OnMouseDown := GameMouseDown;
         OnKeyDown := GameKeyDown;
         CheckGameStatus();
-        Draw_Grid();
+        Drawer();
         while show_exit_window do
         begin
           OnMouseDown := ExitWindow_MD;

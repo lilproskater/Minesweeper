@@ -4,9 +4,10 @@ interface
 Uses GraphABC, MineSweeper_Engine;
 
 const CellsInRow = 16;
-const CellSize = Round(ScreenHeight / CellsInRow / 1.2);
+const CellSize = Round(ScreenHeight / CellsInRow / 1.4);
 const bombsInGrid = Round(Sqr(CellsInRow) / 6.4);
 const WindowSize = CellSize * CellsInRow;
+const StatusBarSize = Round(CellSize * 2.523134);
 
 var victory, lose, exit_playing, show_exit_window: boolean;
 
@@ -14,7 +15,7 @@ procedure Init_Party();
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);
 procedure GameKeyDown(key: integer);
 procedure CheckGameStatus();
-procedure Draw_Grid();
+procedure Drawer();
 
 procedure ExitWindow_Interface();
 procedure ExitWindow_MD(MouseX, MouseY, mouseButton: integer);
@@ -51,6 +52,8 @@ begin
     for var x := 0 to CellsInRow - 1 do
     begin
       grid[y, x] := new Cell(pos_x, pos_y, pos_x + CellSize, pos_y + CellSize, false);
+      grid[y, x].y1 += StatusBarSize;
+      grid[y, x].y2 += StatusBarSize;
       if pos_x + CellSize >= WindowWidth then
       begin
         pos_x := 0;
@@ -85,6 +88,7 @@ begin
       if (y < CellsInRow - 1) and (x < CellsInRow - 1) then if grid[y + 1, x + 1].contains_mine then number += 1;
       grid[y, x].number := number;
     end;
+    sleep(20);
 end;
 //-----------------------------------------------------------------------//
 
@@ -117,11 +121,12 @@ end;
 //-----------------------------  Game Mouse Down  -----------------------------//
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);
 begin
+  if MouseY <= StatusBarSize then exit;
   if not (lose) and not (victory) then
   begin
-    var y := Trunc(MouseY / (WindowHeight / CellsInRow));
-    var x := Trunc(MouseX / (WindowWidth / CellsInRow));
-    if mouseButton = 1 then 
+    var y := Trunc((MouseY - StatusBarSize) / CellSize);
+    var x := Trunc(MouseX / CellSize);
+    if mouseButton = 1 then
     begin
       if (grid[y, x].number <> 0) or (grid[y, x].contains_mine) then grid[y, x].Click(1)
         else OpenCells(y, x);
@@ -179,44 +184,46 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Draw Grid  -----------------------------//
-procedure Draw_Grid();
+//-----------------------------  Drawer  -----------------------------//
+procedure Drawer();
 begin
+  //Setup
+  SetBrushColor(rgb(140, 140, 140));
   SetPenWidth(1);
   SetPenColor(rgb(0, 0, 0));
+  
+  //Status Bar
+  Rectangle(0, 0, WindowWidth, StatusBarSize);
+  
+  //Grid
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
       grid[y, x].Draw();
-  if lose then
-  begin
+      
+ if (lose) or (victory) then
+ begin
+   ClearWindow(argb(130, 40, 40, 40));
+   SetFontSize(Round(WindowHeight / 7.2));
+   if lose then
+   begin
     SetFontColor(clRed);
-    SetFontSize(Round(WindowHeight / 7.2));
     DrawTextCentered(0, 0, WindowWidth, WindowHeight, 'You Lose!');
-    SetFontSize(Round(WindowHeight / 14.4));
-    SetPenWidth(Round(WindowHeight / 102.857));
-    SetPenColor(rgb(255, 255, 255));
-    SetBrushColor(rgb(185, 185, 185));
-    Rectangle(Round(WindowWidth / 36), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 6), WindowHeight - Round(WindowHeight / 36));
-    Rectangle(Round(WindowWidth /4.235), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 2.666), WindowHeight - Round(WindowHeight / 36));
-    SetFontColor(rgb(255, 255, 255));
-    DrawTextCentered(Round(WindowWidth / 36), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 6), WindowHeight - Round(WindowHeight / 36), '←');
-    DrawTextCentered(Round(WindowWidth /4.235), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 2.666), WindowHeight - Round(WindowHeight / 36), '►');
-  end;
-  if victory then
-  begin
+   end;
+   if victory then
+   begin
     SetFontColor(clLime);
-    SetFontSize(Round(WindowHeight / 7.2));
     DrawTextCentered(0, 0, WindowWidth, WindowHeight, 'You Won!');
-    SetFontSize(Round(WindowHeight / 14.4));
-    SetPenWidth(Round(WindowHeight / 102.857));
-    SetPenColor(rgb(255, 255, 255));
-    SetBrushColor(rgb(185, 185, 185));
-    Rectangle(Round(WindowWidth / 36), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 6), WindowHeight - Round(WindowHeight / 36));
-    Rectangle(Round(WindowWidth /4.235), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 2.666), WindowHeight - Round(WindowHeight / 36));
-    SetFontColor(rgb(255, 255, 255));
-    DrawTextCentered(Round(WindowWidth / 36), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 6), WindowHeight - Round(WindowHeight / 36), '←');
-    DrawTextCentered(Round(WindowWidth /4.235), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 2.666), WindowHeight - Round(WindowHeight / 36), '►');
- end;
+   end;
+   SetFontSize(Round(WindowHeight / 14.4));
+   SetPenWidth(Round(WindowHeight / 102.857));
+   SetPenColor(rgb(255, 255, 255));
+   SetBrushColor(rgb(185, 185, 185));
+   Rectangle(Round(WindowWidth / 36), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 6), WindowHeight - Round(WindowHeight / 36));
+   Rectangle(Round(WindowWidth /4.235), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 2.666), WindowHeight - Round(WindowHeight / 36));
+   SetFontColor(rgb(255, 255, 255));
+   DrawTextCentered(Round(WindowWidth / 36), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 6), WindowHeight - Round(WindowHeight / 36), '←');
+   DrawTextCentered(Round(WindowWidth /4.235), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 2.666), WindowHeight - Round(WindowHeight / 36), '►');
+ end; 
   UpdateWindow();
 end;
 //-----------------------------------------------------------------------//
