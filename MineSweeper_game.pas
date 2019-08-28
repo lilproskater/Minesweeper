@@ -53,6 +53,19 @@ begin
 end;
 //-----------------------------------------------------------------------//
 
+
+//-----------------------------  Private: Get Score  -----------------------------//
+function GetScore(): integer;
+var counter: integer;
+begin
+  for var y := 0 to CellsInRow - 1 do
+    for var x := 0 to CellsInRow - 1 do
+    if (grid[y, x].revealed) and (not grid[y, x].contains_mine) then counter += 50;
+  result := counter;
+end;
+//-----------------------------------------------------------------------//
+
+
 //-----------------------------  Initialize Party  -----------------------------//
 procedure Init_Party();
 begin
@@ -220,27 +233,27 @@ begin
   SetBrushColor(rgb(0, 0, 0));
   SetPenWidth(4);
   SetPenColor(rgb(255, 255, 255));
-  Rectangle(10, 10, 160, StatusBarSize - 10);
-  Rectangle(Width - 160, 10, Width - 10, StatusBarSize - 10);
+  Rectangle(Round(Width / 64), Round(Height / 72), Round(Width / 4), StatusBarSize - Round(Height / 72));
+  Rectangle(Width - Round(Width / 4), Round(Height / 72), Width - Round(Width / 64), StatusBarSize - Round(Height / 72));
+  Rectangle(245, 10, 395, StatusBarSize - 30);
   SetFontColor(rgb(255, 0, 0));
   if (not lose) and (not victory) then played_seconds := Round((DateTime.Now - party_init_time).TotalSeconds);
-  DrawTextCentered(10, 10, 160, StatusBarSize - 10, played_seconds);
-  
-  DrawTextCentered(Width - 160, 10, Width - 10, StatusBarSize - 10, bombsInGrid - CountFlags);
-  
+  DrawTextCentered(Round(Width / 64), Round(Height / 72), Round(Width / 4), StatusBarSize - Round(Height / 72), played_seconds);
+  DrawTextCentered(Width - Round(Width / 4), Round(Height / 72), Width - Round(Width / 64), StatusBarSize - Round(Height / 72), bombsInGrid - CountFlags());
+  DrawTextCentered(245, 10, 395, StatusBarSize - 30, GetScore());
  if (lose) or (victory) then
  begin
    ClearWindow(argb(130, 40, 40, 40));
-   SetFontSize(Round(Height / 9.5));
+   SetFontSize(Round(Height / 14.5));
    if lose then
    begin
     SetFontColor(clRed);
-    DrawTextCentered(0, 0, Width, Height, 'You Lose!');
+    DrawTextCentered(0, 0, Width, Height, 'Вы проиграли!');
    end;
    if victory then
    begin
     SetFontColor(clLime);
-    DrawTextCentered(0, 0, Width, Height, 'You Won!');
+    DrawTextCentered(0, 0, Width, Height, 'Вы выиграли!');
    end;
    SetFontSize(Round(Height / 14.4));
    SetPenWidth(Round(Height / 102.857));
