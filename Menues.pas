@@ -56,20 +56,20 @@ var
 procedure MainMenu_Interface();
 begin
   background := new Picture('data/Background.png');
-  background.Draw(0, 0, WindowWidth, WindowHeight);
+  background.Draw(0, 0, Width, Height);
   SetFontColor(font_color);
-  SetFontSize(Round(WindowHeight / 14.4));
+  SetFontSize(Round(Height / 14.4));
   SetFontName('Tahoma');
   SetFontStyle(fsBold);
-  DrawTextCentered(0, 0, WindowWidth, Round(WindowHeight / 6), 'MineSweeper');
-  play_btn := new Button(Round(WindowWidth / 6), Round(WindowHeight / 6), WindowWidth - Round(WindowWidth / 6), Round(WindowHeight / 3.272), 'Играть'); 
-  stats_btn := new Button(Round(WindowWidth / 6), Round(WindowHeight / 2.618), WindowWidth - Round(WindowWidth / 6), Round(WindowHeight / 1.92), 'Статистика'); 
-  settings_btn := new Button(Round(WindowWidth / 6), Round(WindowHeight / 1.674), WindowWidth - Round(WindowWidth / 6), Round(WindowHeight / 1.358), 'Настройки'); 
-  quit_btn := new Button(Round(WindowWidth / 6), Round(WindowHeight / 1.23), WindowWidth - Round(WindowWidth / 6), Round(WindowHeight / 1.051), 'Выход');
+  DrawTextCentered(0, 0, Width, Round(Height / 6), 'MineSweeper');
+  play_btn := new Button(Round(Width / 6), Round(Height / 6), Width - Round(Width / 6), Round(Height / 3.272), 'Играть'); 
+  stats_btn := new Button(Round(Width / 6), Round(Height / 2.618), Width - Round(Width / 6), Round(Height / 1.92), 'Статистика'); 
+  settings_btn := new Button(Round(Width / 6), Round(Height / 1.674), Width - Round(Width / 6), Round(Height / 1.358), 'Настройки'); 
+  quit_btn := new Button(Round(Width / 6), Round(Height / 1.23), Width - Round(Width / 6), Round(Height / 1.051), 'Выход');
   SetPenColor(btn_border_color);
   SetBrushColor(btn_color);
   SetPenWidth(pen_width);
-  SetFontSize(Round(WindowHeight / 19.459));
+  SetFontSize(Round(Height / 19.459));
   play_btn.Draw();
   stats_btn.Draw();
   settings_btn.Draw();
@@ -105,14 +105,14 @@ end;
 //-----------------------------  Statistics  -----------------------------//
 procedure Statistics_Interface();
 begin
-  background.Draw(0, 0, WindowWidth, WindowHeight);
+  background.Draw(0, 0, Width, Height);
   SetFontColor(font_color);
-  SetFontSize(Round(WindowHeight / 10));
+  SetFontSize(Round(Height / 10));
   SetFontName('Tahoma');
   SetFontStyle(fsBold);
-  DrawTextCentered(0, 0, WindowWidth, WindowHeight, 'Раздел в разработке');
-  SetFontSize(Round(WindowHeight / 36));
-  DrawTextCentered(0, WindowHeight - Round(WindowHeight / 7.2), WindowWidth, WindowHeight, 'Нажмите "Esc" чтобы выйти');
+  DrawTextCentered(0, 0, Width, Height, 'Раздел в разработке');
+  SetFontSize(Round(Height / 36));
+  DrawTextCentered(0, Height - Round(Height / 7.2), Width, Height, 'Нажмите "Esc" чтобы выйти');
   Redraw();
 end;
 
@@ -131,14 +131,14 @@ end;
 //-----------------------------  Settings  -----------------------------//
 procedure Settings_Interface();
 begin
-  background.Draw(0, 0, WindowWidth, WindowHeight);
+  background.Draw(0, 0, Width, Height);
   SetFontColor(font_color);
-  SetFontSize(Round(WindowHeight / 10));
+  SetFontSize(Round(Height / 10));
   SetFontName('Tahoma');
   SetFontStyle(fsBold);
-  DrawTextCentered(0, 0, WindowWidth, WindowHeight, 'Раздел в разработке');
-  SetFontSize(Round(WindowHeight / 36));
-  DrawTextCentered(0, WindowHeight - Round(WindowHeight / 7.2), WindowWidth, WindowHeight, 'Нажмите "Esc" чтобы выйти');
+  DrawTextCentered(0, 0, Width, Height, 'Раздел в разработке');
+  SetFontSize(Round(Height / 36));
+  DrawTextCentered(0, Height - Round(Height / 7.2), Width, Height, 'Нажмите "Esc" чтобы выйти');
   Redraw();
 end;
 
@@ -159,5 +159,5 @@ begin
   btn_color := rgb(185, 185, 185);
   btn_border_color := rgb(255, 255, 255);
   font_color := rgb(255, 255, 255);
-  pen_width := Round(WindowHeight / 102.857);
+  pen_width := Round(Height / 102.857);
 end.

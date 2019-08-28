@@ -71,7 +71,7 @@ begin
       grid[y, x] := new Cell(pos_x, pos_y, pos_x + CellSize, pos_y + CellSize, false);
       grid[y, x].y1 += StatusBarSize;
       grid[y, x].y2 += StatusBarSize;
-      if pos_x + CellSize >= WindowWidth then
+      if pos_x + CellSize >= Width then
       begin
         pos_x := 0;
         pos_y += CellSize;
@@ -163,8 +163,8 @@ begin
   end
   else
   begin
-    if (mouseButton = 1) and (MouseX > Round(WindowWidth / 36)) and (MouseY > WindowHeight - Round(WindowHeight / 6)) and (MouseX < Round(WindowWidth / 6)) and (MouseY < WindowHeight - Round(WindowHeight / 36)) then exit_playing := true;
-    if (mouseButton = 1) and (MouseX > Round(WindowWidth /4.235)) and (MouseY > WindowHeight - Round(WindowHeight / 6)) and (MouseX < Round(WindowWidth / 2.666)) and (MouseY < WindowHeight - Round(WindowHeight / 36)) then
+    if (mouseButton = 1) and (MouseX > Round(Width / 36)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 6)) and (MouseY < Height - Round(Height / 36)) then exit_playing := true;
+    if (mouseButton = 1) and (MouseX > Round(Width /4.235)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 2.666)) and (MouseY < Height - Round(Height / 36)) then
     begin
       Init_Party();
       party_init_time := DateTime.Now;
@@ -211,7 +211,7 @@ begin
   SetPenWidth(1);
   SetPenColor(rgb(0, 0, 0));
   SetBrushColor(rgb(140, 140, 140));
-  Rectangle(0, 0, WindowWidth, StatusBarSize);
+  Rectangle(0, 0, Width, StatusBarSize);
   //Grid
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
@@ -221,36 +221,36 @@ begin
   SetPenWidth(4);
   SetPenColor(rgb(255, 255, 255));
   Rectangle(10, 10, 160, StatusBarSize - 10);
-  Rectangle(WindowWidth - 160, 10, WindowWidth - 10, StatusBarSize - 10);
+  Rectangle(Width - 160, 10, Width - 10, StatusBarSize - 10);
   SetFontColor(rgb(255, 0, 0));
   if (not lose) and (not victory) then played_seconds := Round((DateTime.Now - party_init_time).TotalSeconds);
   DrawTextCentered(10, 10, 160, StatusBarSize - 10, played_seconds);
   
-  DrawTextCentered(WindowWidth - 160, 10, WindowWidth - 10, StatusBarSize - 10, bombsInGrid - CountFlags);
+  DrawTextCentered(Width - 160, 10, Width - 10, StatusBarSize - 10, bombsInGrid - CountFlags);
   
  if (lose) or (victory) then
  begin
    ClearWindow(argb(130, 40, 40, 40));
-   SetFontSize(Round(WindowHeight / 9.5));
+   SetFontSize(Round(Height / 9.5));
    if lose then
    begin
     SetFontColor(clRed);
-    DrawTextCentered(0, 0, WindowWidth, WindowHeight, 'You Lose!');
+    DrawTextCentered(0, 0, Width, Height, 'You Lose!');
    end;
    if victory then
    begin
     SetFontColor(clLime);
-    DrawTextCentered(0, 0, WindowWidth, WindowHeight, 'You Won!');
+    DrawTextCentered(0, 0, Width, Height, 'You Won!');
    end;
-   SetFontSize(Round(WindowHeight / 14.4));
-   SetPenWidth(Round(WindowHeight / 102.857));
+   SetFontSize(Round(Height / 14.4));
+   SetPenWidth(Round(Height / 102.857));
    SetPenColor(rgb(255, 255, 255));
    SetBrushColor(rgb(185, 185, 185));
-   Rectangle(Round(WindowWidth / 36), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 6), WindowHeight - Round(WindowHeight / 36));
-   Rectangle(Round(WindowWidth /4.235), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 2.666), WindowHeight - Round(WindowHeight / 36));
+   Rectangle(Round(Width / 36), Height - Round(Height / 6), Round(Width / 6), Height - Round(Height / 36));
+   Rectangle(Round(Width /4.235), Height - Round(Height / 6), Round(Width / 2.666), Height - Round(Height / 36));
    SetFontColor(rgb(255, 255, 255));
-   DrawTextCentered(Round(WindowWidth / 36), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 6), WindowHeight - Round(WindowHeight / 36), '←');
-   DrawTextCentered(Round(WindowWidth /4.235), WindowHeight - Round(WindowHeight / 6), Round(WindowWidth / 2.666), WindowHeight - Round(WindowHeight / 36), '►');
+   DrawTextCentered(Round(Width / 36), Height - Round(Height / 6), Round(Width / 6), Height - Round(Height / 36), '←');
+   DrawTextCentered(Round(Width /4.235), Height - Round(Height / 6), Round(Width / 2.666), Height - Round(Height / 36), '►');
  end; 
   UpdateWindow();
 end;
@@ -263,15 +263,15 @@ begin
   SetPenColor(rgb(255, 255, 255));
   SetBrushColor(rgb(185, 185, 185));
   SetFontColor(rgb(255, 255, 255));
-  SetPenWidth(Round(WindowHeight / 102.835));
-  Rectangle(Round(WindowWidth / 14.4), Round(WindowHeight / 14.4), WindowWidth - Round(WindowWidth / 14.4), WindowHeight - Round(WindowHeight / 14.4));
-  SetFontSize(Round(WindowHeight / 20.571));
-  DrawTextCentered(Round(WindowWidth / 9), Round(WindowHeight / 10.285), WindowWidth - Round(WindowWidth / 14.4), Round(WindowHeight / 3.6), 'Вы действительно хотите покинуть игру?');
-  Rectangle(Round(WindowWidth / 3.272), WindowHeight - Round(WindowHeight / 3.6), Round(WindowWidth / 2.25), WindowHeight - Round(WindowHeight / 7.2));
-  Rectangle(Round(WindowWidth / 1.945), WindowHeight - Round(WindowHeight / 3.6), Round(WindowWidth / 1.531), WindowHeight - Round(WindowHeight / 7.2));
-  SetFontSize(Round(WindowHeight / 24));
-  DrawTextCentered(Round(WindowWidth / 3.272), WindowHeight - Round(WindowHeight / 3.6), Round(WindowWidth / 2.25), WindowHeight - Round(WindowHeight / 7.2), 'Да');
-  DrawTextCentered(Round(WindowWidth / 1.945), WindowHeight - Round(WindowHeight / 3.6), Round(WindowWidth / 1.531), WindowHeight - Round(WindowHeight / 7.2), 'Нет');
+  SetPenWidth(Round(Height / 102.835));
+  Rectangle(Round(Width / 14.4), Round(Height / 14.4), Width - Round(Width / 14.4), Height - Round(Height / 14.4));
+  SetFontSize(Round(Height / 20.571));
+  DrawTextCentered(Round(Width / 9), Round(Height / 10.285), Width - Round(Width / 14.4), Round(Height / 3.6), 'Вы действительно хотите покинуть игру?');
+  Rectangle(Round(Width / 3.272), Height - Round(Height / 3.6), Round(Width / 2.25), Height - Round(Height / 7.2));
+  Rectangle(Round(Width / 1.945), Height - Round(Height / 3.6), Round(Width / 1.531), Height - Round(Height / 7.2));
+  SetFontSize(Round(Height / 24));
+  DrawTextCentered(Round(Width / 3.272), Height - Round(Height / 3.6), Round(Width / 2.25), Height - Round(Height / 7.2), 'Да');
+  DrawTextCentered(Round(Width / 1.945), Height - Round(Height / 3.6), Round(Width / 1.531), Height - Round(Height / 7.2), 'Нет');
   UpdateWindow();
 end;
 //-----------------------------------------------------------------------//
@@ -280,13 +280,13 @@ end;
 //-----------------------------  Exit Window Mouse Down  -----------------------------//
 procedure ExitWindow_MD(MouseX, MouseY, mouseButton: integer);
 begin
-  if (mouseButton = 1) and (MouseX > Round(WindowWidth / 3.272)) and (MouseY > WindowHeight - Round(WindowHeight / 3.6)) and (MouseX < Round(WindowWidth / 2.25)) and (MouseY < WindowHeight - Round(WindowHeight / 7.2)) then
+  if (mouseButton = 1) and (MouseX > Round(Width / 3.272)) and (MouseY > Height - Round(Height / 3.6)) and (MouseX < Round(Width / 2.25)) and (MouseY < Height - Round(Height / 7.2)) then
   begin
     show_exit_window := false;
     exit_playing := true;
   end;
   
-  if (mouseButton = 1) and (MouseX > Round(WindowWidth / 1.945)) and (MouseY > WindowHeight - Round(WindowHeight / 3.6)) and (MouseX < Round(WindowWidth / 1.531)) and (MouseY < WindowHeight - Round(WindowHeight / 7.2)) then
+  if (mouseButton = 1) and (MouseX > Round(Width / 1.945)) and (MouseY > Height - Round(Height / 3.6)) and (MouseX < Round(Width / 1.531)) and (MouseY < Height - Round(Height / 7.2)) then
     show_exit_window := false;
 end;
 //-----------------------------------------------------------------------//
