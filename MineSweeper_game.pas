@@ -10,7 +10,9 @@ const StatusBarSize = CellSize * 2;
 const Width = CellSize * CellsInRow;
 const Height = Width + StatusBarSize;
 
-var victory, lose, exit_playing, show_exit_window: boolean;
+var 
+  victory, lose, exit_playing, show_exit_window: boolean;
+  party_init_time: datetime;
 
 procedure Init_Party();
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);
@@ -47,6 +49,7 @@ begin
   first_click := true;
   mine_is_pressed := false;
   exit_playing := false;
+  party_init_time := DateTime.Now;
   var pos_x := 0;
   var pos_y := 0;
   for var y := 0 to CellsInRow - 1 do
@@ -89,7 +92,6 @@ begin
       if (y < CellsInRow - 1) and (x < CellsInRow - 1) then if grid[y + 1, x + 1].contains_mine then number += 1;
       grid[y, x].number := number;
     end;
-    sleep(20);
 end;
 //-----------------------------------------------------------------------//
 
@@ -188,19 +190,24 @@ end;
 //-----------------------------  Drawer  -----------------------------//
 procedure Drawer();
 begin
-  //Setup
-  SetBrushColor(rgb(140, 140, 140));
+  //Status Bar
   SetPenWidth(1);
   SetPenColor(rgb(0, 0, 0));
-  
-  //Status Bar
+  SetBrushColor(rgb(140, 140, 140));
   Rectangle(0, 0, WindowWidth, StatusBarSize);
-  
   //Grid
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
       grid[y, x].Draw();
-      
+  //Status Bar Items
+  SetBrushColor(rgb(0, 0, 0));
+  SetPenWidth(4);
+  SetPenColor(rgb(255, 255, 255));
+  Rectangle(10, 10, 160, StatusBarSize - 10);
+  Rectangle(WindowWidth - 160, 10, WindowWidth - 10, StatusBarSize - 10);
+  SetFontColor(rgb(255, 0, 0));
+  DrawTextCentered(10, 10, 160, StatusBarSize - 10, Round((DateTime.Now - party_init_time).TotalSeconds));
+  
  if (lose) or (victory) then
  begin
    ClearWindow(argb(130, 40, 40, 40));
