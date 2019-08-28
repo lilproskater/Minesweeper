@@ -81,22 +81,10 @@ begin
   first_click := true;
   mine_is_pressed := false;
   exit_playing := false;
-  var pos_x := 0;
-  var pos_y := 0;
   for var y := 0 to CellsInRow - 1 do
-    for var x := 0 to CellsInRow - 1 do
-    begin
-      grid[y, x] := new Cell(pos_x, pos_y, pos_x + CellSize, pos_y + CellSize, false);
-      grid[y, x].y1 += StatusBarSize;
-      grid[y, x].y2 += StatusBarSize;
-      if pos_x + CellSize >= Width then
-      begin
-        pos_x := 0;
-        pos_y += CellSize;
-      end
-      else pos_x += CellSize;  
-    end;
-  
+    for var x := 0 to CellsInRow - 1 do 
+      grid[y, x] := new Cell(x * CellSize, y * CellSize + StatusBarSize, (x + 1) * CellSize, (y + 1) * CellSize + StatusBarSize, false);
+
   //Setting Up Bombs
   var bombs_counter := bombsInGrid;
   while bombs_counter > 0 do
