@@ -23,11 +23,6 @@ procedure GameKeyDown(key: integer);
 procedure CheckGameStatus();
 procedure Drawer();
 
-procedure ExitWindow_Interface();
-procedure ExitWindow_MD(MouseX, MouseY, mouseButton: integer);
-procedure ExitWindow_KD(key: integer);
-
-
 implementation
 
 var
@@ -215,72 +210,6 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Drawer  -----------------------------//
-procedure Drawer();
-begin
-  //Status Bar
-  SetPenWidth(1);
-  SetPenColor(rgb(0, 0, 0));
-  SetBrushColor(rgb(140, 140, 140));
-  Rectangle(0, 0, Width, StatusBarSize);
-  //Grid
-  for var y := 0 to CellsInRow - 1 do
-    for var x := 0 to CellsInRow - 1 do
-      grid[y, x].Draw();
-  //Status Bar Items
-  SetFontSize(Round(ScreenHeight / 45));
-  SetBrushColor(rgb(0, 0, 0));
-  SetPenWidth(4);
-  SetPenColor(rgb(255, 255, 255));
-  Rectangle(Round(Width / 64), Round(Height / 72), Round(Width / 4), StatusBarSize - Round(Height / 72));
-  Rectangle(Width - Round(Width / 4), Round(Height / 72), Width - Round(Width / 64), StatusBarSize - Round(Height / 72));
-  Rectangle(245, 10, 395, StatusBarSize - 30);
-  SetFontColor(rgb(255, 0, 0));
-  
-  // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv  FIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIXXXXXXXXXXXXXXXXXXXXXXXXXX  vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-  if (not lose) and (not victory) and (not show_exit_window) then played_seconds := Round((DateTime.Now - party_init_time).TotalSeconds);
-  DrawTextCentered(Round(Width / 64), Round(Height / 72), Round(Width / 4), StatusBarSize - Round(Height / 72), played_seconds);
-  DrawTextCentered(Width - Round(Width / 4), Round(Height / 72), Width - Round(Width / 64), StatusBarSize - Round(Height / 72), bombsInGrid - CountFlags());
-  DrawTextCentered(245, 10, 395, StatusBarSize - 30, GetScore());
-  SetFontColor(rgb(255, 255, 255));
-  SetFontSize(Round(14));
-  DrawTextCentered(Round(Width / 4), StatusBarSize - 30, Width - Round(Width / 4), StatusBarSize, message);
-  if show_exit_window then
-  begin
-    OnMouseDown := ExitWindow_MD;
-    OnKeyDown := ExitWindow_KD;
-    ExitWindow_Interface();
-  end;
-
-  if (lose) or (victory) then
-  begin
-    ClearWindow(argb(130, 40, 40, 40));
-    SetFontSize(Round(Height / 14.5));
-    if lose then
-    begin
-      SetFontColor(clRed);
-      DrawTextCentered(0, 0, Width, Height, 'Вы проиграли!');
-    end;
-    if victory then
-    begin
-      SetFontColor(clLime);
-      DrawTextCentered(0, 0, Width, Height, 'Вы выиграли!');
-    end;
-    SetFontSize(Round(Height / 14.4));
-    SetPenWidth(Round(Height / 102.857));
-    SetPenColor(rgb(255, 255, 255));
-    SetBrushColor(rgb(185, 185, 185));
-    Rectangle(Round(Width / 36), Height - Round(Height / 6), Round(Width / 6), Height - Round(Height / 36));
-    Rectangle(Round(Width / 4.235), Height - Round(Height / 6), Round(Width / 2.666), Height - Round(Height / 36));
-    SetFontColor(rgb(255, 255, 255));
-    DrawTextCentered(Round(Width / 36), Height - Round(Height / 6), Round(Width / 6), Height - Round(Height / 36), '←');
-    DrawTextCentered(Round(Width / 4.235), Height - Round(Height / 6), Round(Width / 2.666), Height - Round(Height / 36), '►');
-  end; 
-  UpdateWindow();
-end;
-//-----------------------------------------------------------------------//
-
-
 //-----------------------------  Exit Window Interface  -----------------------------//
 procedure ExitWindow_Interface();
 begin
@@ -326,6 +255,70 @@ begin
     show_exit_window := false;
     exit_playing := true;
   end;
+end;
+//-----------------------------------------------------------------------//
+
+
+//-----------------------------  Drawer  -----------------------------//
+procedure Drawer();
+begin
+  //Status Bar
+  SetPenWidth(1);
+  SetPenColor(rgb(0, 0, 0));
+  SetBrushColor(rgb(140, 140, 140));
+  Rectangle(0, 0, Width, StatusBarSize);
+  //Grid
+  for var y := 0 to CellsInRow - 1 do
+    for var x := 0 to CellsInRow - 1 do
+      grid[y, x].Draw();
+  //Status Bar Items
+  SetFontSize(Round(ScreenHeight / 45));
+  SetBrushColor(rgb(0, 0, 0));
+  SetPenWidth(4);
+  SetPenColor(rgb(255, 255, 255));
+  Rectangle(Round(Width / 64), Round(Height / 72), Round(Width / 4), StatusBarSize - Round(Height / 72));
+  Rectangle(Width - Round(Width / 4), Round(Height / 72), Width - Round(Width / 64), StatusBarSize - Round(Height / 72));
+  Rectangle(245, 10, 395, StatusBarSize - 30);
+  SetFontColor(rgb(255, 0, 0));
+  DrawTextCentered(Round(Width / 64), Round(Height / 72), Round(Width / 4), StatusBarSize - Round(Height / 72), played_seconds);
+  DrawTextCentered(Width - Round(Width / 4), Round(Height / 72), Width - Round(Width / 64), StatusBarSize - Round(Height / 72), bombsInGrid - CountFlags());
+  DrawTextCentered(245, 10, 395, StatusBarSize - 30, GetScore());
+  SetFontColor(rgb(255, 255, 255));
+  SetFontSize(Round(14));
+  DrawTextCentered(Round(Width / 4), StatusBarSize - 30, Width - Round(Width / 4), StatusBarSize, message);
+  while show_exit_window do
+  begin
+    OnMouseDown := ExitWindow_MD;
+    OnKeyDown := ExitWindow_KD;
+    ExitWindow_Interface();
+  end;
+  
+  if (lose) or (victory) then
+  begin
+    ClearWindow(argb(130, 40, 40, 40));
+    SetFontSize(Round(Height / 14.5));
+    if lose then
+    begin
+      SetFontColor(clRed);
+      DrawTextCentered(0, 0, Width, Height, 'Вы проиграли!');
+    end;
+    if victory then
+    begin
+      SetFontColor(clLime);
+      DrawTextCentered(0, 0, Width, Height, 'Вы выиграли!');
+    end;
+    SetFontSize(Round(Height / 14.4));
+    SetPenWidth(Round(Height / 102.857));
+    SetPenColor(rgb(255, 255, 255));
+    SetBrushColor(rgb(185, 185, 185));
+    Rectangle(Round(Width / 36), Height - Round(Height / 6), Round(Width / 6), Height - Round(Height / 36));
+    Rectangle(Round(Width / 4.235), Height - Round(Height / 6), Round(Width / 2.666), Height - Round(Height / 36));
+    SetFontColor(rgb(255, 255, 255));
+    DrawTextCentered(Round(Width / 36), Height - Round(Height / 6), Round(Width / 6), Height - Round(Height / 36), '←');
+    DrawTextCentered(Round(Width / 4.235), Height - Round(Height / 6), Round(Width / 2.666), Height - Round(Height / 36), '►');
+  end
+  else played_seconds := Round((DateTime.Now - party_init_time).TotalSeconds);
+  UpdateWindow();
 end;
 //-----------------------------------------------------------------------//
 
