@@ -1,11 +1,12 @@
 ﻿unit Menues;
 
 interface
+
 Uses GraphABC, MineSweeper_game;
 
-var 
+var
 //Menues boolean
-  main_menu, playing, statistics, settings, quit:boolean;
+  main_menu, playing, statistics, settings, quit: boolean;
 
 procedure MainMenu_Interface();
 procedure MainMenu_MD(MouseX, MouseY, mouseButton: integer);
@@ -21,33 +22,35 @@ procedure Settings_KD(key: integer);
 
 implementation
 
-type Button = class
-  x1, y1, x2, y2: integer;
-  text: string;
-  constructor Create(x1, y1, x2, y2: integer; text: string);
-  begin
-    self.x1 := x1;
-    self.y1 := y1;
-    self.x2 := x2;
-    self.y2 := y2;
-    self.text := text;
-  end;
-  procedure Draw();
-  begin
-    Rectangle(x1, y1, x2, y2);
-    DrawTextCentered(x1, y1, x2, y2, text);
-  end;
-end;
-
-var 
-//Genreal
-    background: picture;
-    btn_color, btn_border_color, font_color: color;
-    pen_width: integer;
-
-//MainMenu
-    play_btn, stats_btn, settings_btn, quit_btn: button;    
+type
+  Button = class
+    x1, y1, x2, y2: integer;
+    text: string;
+    constructor Create(x1, y1, x2, y2: integer; text: string);
+    begin
+      self.x1 := x1;
+      self.y1 := y1;
+      self.x2 := x2;
+      self.y2 := y2;
+      self.text := text;
+    end;
     
+    procedure Draw();
+    begin
+      Rectangle(x1, y1, x2, y2);
+      DrawTextCentered(x1, y1, x2, y2, text);
+    end;
+  end;
+
+var
+  //Genreal
+  background: picture;
+  btn_color, btn_border_color, font_color: color;
+  pen_width: integer;
+  
+  //MainMenu
+  play_btn, stats_btn, settings_btn, quit_btn: button;
+
 
 //-----------------------------  Main Menu  -----------------------------//
 procedure MainMenu_Interface();
@@ -150,7 +153,7 @@ end;
 
 
 begin
-//General
+  //General
   btn_color := rgb(185, 185, 185);
   btn_border_color := rgb(255, 255, 255);
   font_color := rgb(255, 255, 255);
