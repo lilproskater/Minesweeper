@@ -1,6 +1,7 @@
 ﻿unit MineSweeper_game;
 
 interface
+
 Uses GraphABC, MineSweeper_Engine;
 
 const CellsInRow = 16;
@@ -10,10 +11,11 @@ const StatusBarSize = Round(ScreenHeight / 11.25);
 const Width = CellSize * CellsInRow;
 const Height = Width + StatusBarSize;
 
-var 
+var
   victory, lose, exit_playing, show_exit_window: boolean;
   party_init_time: datetime;
   played_seconds: integer;
+  message: string;
 
 procedure Init_Party();
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);
@@ -28,15 +30,16 @@ procedure ExitWindow_KD(key: integer);
 
 implementation
 
-var grid: array [0..CellsInRow - 1, 0..CellsInRow - 1] of Cell; 
+var
+  grid: array [0..CellsInRow - 1, 0..CellsInRow - 1] of Cell;
 
 //-----------------------------  Private: Update Window  -----------------------------//
 procedure UpdateWindow();
 begin
-  try 
+  try
     Redraw();
   except
-
+  
   end;
 end;
 //-----------------------------------------------------------------------//
@@ -44,11 +47,12 @@ end;
 
 //-----------------------------  Private: Count Flags  -----------------------------//
 function CountFlags(): integer;
-var counter: integer;
+var
+  counter: integer;
 begin
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
-    if grid[y, x].flag_is_put then counter += 1;
+      if grid[y, x].flag_is_put then counter += 1;
   result := counter;
 end;
 //-----------------------------------------------------------------------//
@@ -56,11 +60,12 @@ end;
 
 //-----------------------------  Private: Get Score  -----------------------------//
 function GetScore(): integer;
-var counter: integer;
+var
+  counter: integer;
 begin
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
-    if (grid[y, x].revealed) and (not grid[y, x].contains_mine) then counter += 50;
+      if (grid[y, x].revealed) and (not grid[y, x].contains_mine) then counter += 50;
   result := counter;
 end;
 //-----------------------------------------------------------------------//
@@ -99,7 +104,7 @@ begin
     var x := Random(0, CellsInRow - 1);
     var y := Random(0, CellsInRow - 1);
     if not grid[y, x].contains_mine then grid[y, x].contains_mine := true
-      else continue;
+    else continue;
     bombs_counter -= 1;    
   end;
   
@@ -151,6 +156,7 @@ end;
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);
 begin
   if MouseY <= StatusBarSize then exit;
+  message := '';
   if not (lose) and not (victory) then
   begin
     var y := Trunc((MouseY - StatusBarSize) / CellSize);
@@ -158,7 +164,7 @@ begin
     if mouseButton = 1 then
     begin
       if (grid[y, x].number <> 0) or (grid[y, x].contains_mine) then grid[y, x].Click(1)
-        else OpenCells(y, x);
+      else OpenCells(y, x);
       if first_click then 
       begin
         if mine_is_pressed then
@@ -167,17 +173,21 @@ begin
           while grid[y, x].contains_mine do
             Init_Party();
           if grid[y, x].number <> 0 then grid[y, x].Click(1)
-            else OpenCells(y, x); 
+          else OpenCells(y, x); 
         end;
         first_click := false;
       end;
     end
-      else grid[y, x].Click(mouseButton);
+    else 
+    begin
+      if not first_click then grid[y, x].Click(mouseButton)
+      else message := 'Сначала откройте клетку поля!';
+    end;
   end
   else
   begin
     if (mouseButton = 1) and (MouseX > Round(Width / 36)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 6)) and (MouseY < Height - Round(Height / 36)) then exit_playing := true;
-    if (mouseButton = 1) and (MouseX > Round(Width /4.235)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 2.666)) and (MouseY < Height - Round(Height / 36)) then
+    if (mouseButton = 1) and (MouseX > Round(Width / 4.235)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 2.666)) and (MouseY < Height - Round(Height / 36)) then
     begin
       Init_Party();
       party_init_time := DateTime.Now;
@@ -191,7 +201,7 @@ end;
 procedure GameKeyDown(key: integer);
 begin
   if (key = VK_Escape) and not (lose) and not (victory) then show_exit_window := true
-    else show_exit_window := false;
+  else show_exit_window := false;
   if (key = VK_Escape) and ((lose) or (victory)) then
     exit_playing := true;
   if (key = VK_Enter) and ((lose) or (victory)) then
@@ -210,7 +220,7 @@ begin
     var count_unrevealed := 0;
     for var y := 0 to CellsInRow - 1 do
       for var x := 0 to CellsInRow - 1 do
-       if not grid[y, x].revealed then count_unrevealed += 1;
+        if not grid[y, x].revealed then count_unrevealed += 1;
     if count_unrevealed = bombsInGrid then victory := true;
   end;
 end;
@@ -242,30 +252,34 @@ begin
   DrawTextCentered(Round(Width / 64), Round(Height / 72), Round(Width / 4), StatusBarSize - Round(Height / 72), played_seconds);
   DrawTextCentered(Width - Round(Width / 4), Round(Height / 72), Width - Round(Width / 64), StatusBarSize - Round(Height / 72), bombsInGrid - CountFlags());
   DrawTextCentered(245, 10, 395, StatusBarSize - 30, GetScore());
- if (lose) or (victory) then
- begin
-   ClearWindow(argb(130, 40, 40, 40));
-   SetFontSize(Round(Height / 14.5));
-   if lose then
-   begin
-    SetFontColor(clRed);
-    DrawTextCentered(0, 0, Width, Height, 'Вы проиграли!');
-   end;
-   if victory then
-   begin
-    SetFontColor(clLime);
-    DrawTextCentered(0, 0, Width, Height, 'Вы выиграли!');
-   end;
-   SetFontSize(Round(Height / 14.4));
-   SetPenWidth(Round(Height / 102.857));
-   SetPenColor(rgb(255, 255, 255));
-   SetBrushColor(rgb(185, 185, 185));
-   Rectangle(Round(Width / 36), Height - Round(Height / 6), Round(Width / 6), Height - Round(Height / 36));
-   Rectangle(Round(Width /4.235), Height - Round(Height / 6), Round(Width / 2.666), Height - Round(Height / 36));
-   SetFontColor(rgb(255, 255, 255));
-   DrawTextCentered(Round(Width / 36), Height - Round(Height / 6), Round(Width / 6), Height - Round(Height / 36), '←');
-   DrawTextCentered(Round(Width /4.235), Height - Round(Height / 6), Round(Width / 2.666), Height - Round(Height / 36), '►');
- end; 
+  SetFontColor(rgb(255, 255, 255));
+  SetFontSize(Round(14));
+  DrawTextCentered(Round(Width / 4), StatusBarSize - 30, Width - Round(Width / 4), StatusBarSize, message);
+  
+  if (lose) or (victory) then
+  begin
+    ClearWindow(argb(130, 40, 40, 40));
+    SetFontSize(Round(Height / 14.5));
+    if lose then
+    begin
+      SetFontColor(clRed);
+      DrawTextCentered(0, 0, Width, Height, 'Вы проиграли!');
+    end;
+    if victory then
+    begin
+      SetFontColor(clLime);
+      DrawTextCentered(0, 0, Width, Height, 'Вы выиграли!');
+    end;
+    SetFontSize(Round(Height / 14.4));
+    SetPenWidth(Round(Height / 102.857));
+    SetPenColor(rgb(255, 255, 255));
+    SetBrushColor(rgb(185, 185, 185));
+    Rectangle(Round(Width / 36), Height - Round(Height / 6), Round(Width / 6), Height - Round(Height / 36));
+    Rectangle(Round(Width / 4.235), Height - Round(Height / 6), Round(Width / 2.666), Height - Round(Height / 36));
+    SetFontColor(rgb(255, 255, 255));
+    DrawTextCentered(Round(Width / 36), Height - Round(Height / 6), Round(Width / 6), Height - Round(Height / 36), '←');
+    DrawTextCentered(Round(Width / 4.235), Height - Round(Height / 6), Round(Width / 2.666), Height - Round(Height / 36), '►');
+  end; 
   UpdateWindow();
 end;
 //-----------------------------------------------------------------------//
