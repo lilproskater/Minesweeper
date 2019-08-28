@@ -6,7 +6,7 @@ Uses GraphABC, MineSweeper_Engine;
 const CellsInRow = 16;
 const CellSize = Round(ScreenHeight / CellsInRow / 1.4);
 const bombsInGrid = Round(Sqr(CellsInRow) / 6.4);
-const StatusBarSize = CellSize * 2;
+const StatusBarSize = Round(ScreenHeight / 11.25);
 const Width = CellSize * CellsInRow;
 const Height = Width + StatusBarSize;
 
@@ -230,6 +230,7 @@ begin
     for var x := 0 to CellsInRow - 1 do
       grid[y, x].Draw();
   //Status Bar Items
+  SetFontSize(Round(ScreenHeight / 45));
   SetBrushColor(rgb(0, 0, 0));
   SetPenWidth(4);
   SetPenColor(rgb(255, 255, 255));
@@ -277,14 +278,15 @@ begin
   SetBrushColor(rgb(185, 185, 185));
   SetFontColor(rgb(255, 255, 255));
   SetPenWidth(Round(Height / 102.835));
-  Rectangle(Round(Width / 14.4), Round(Height / 14.4), Width - Round(Width / 14.4), Height - Round(Height / 14.4));
+  var HalfStatusBar :=  Round(StatusBarSize / 2);
+  Rectangle(Round(Width / 14.4), Round(Height / 14.4) + HalfStatusBar, Width - Round(Width / 14.4), Height - Round(Height / 14.4) - HalfStatusBar);
   SetFontSize(Round(Height / 20.571));
-  DrawTextCentered(Round(Width / 9), Round(Height / 10.285), Width - Round(Width / 14.4), Round(Height / 3.6), 'Вы действительно хотите покинуть игру?');
-  Rectangle(Round(Width / 3.272), Height - Round(Height / 3.6), Round(Width / 2.25), Height - Round(Height / 7.2));
-  Rectangle(Round(Width / 1.945), Height - Round(Height / 3.6), Round(Width / 1.531), Height - Round(Height / 7.2));
+  DrawTextCentered(Round(Width / 9), Round(Height / 10.285) + HalfStatusBar, Width - Round(Width / 14.4), Round(Height / 3.6) + HalfStatusBar, 'Вы действительно хотите покинуть игру?');
+  Rectangle(Round(Width / 3.272), Height - Round(Height / 3.2), Round(Width / 2.25), Height - Round(Height / 5.5));
+  Rectangle(Round(Width / 1.945), Height - Round(Height / 3.2), Round(Width / 1.531), Height - Round(Height / 5.5));
   SetFontSize(Round(Height / 24));
-  DrawTextCentered(Round(Width / 3.272), Height - Round(Height / 3.6), Round(Width / 2.25), Height - Round(Height / 7.2), 'Да');
-  DrawTextCentered(Round(Width / 1.945), Height - Round(Height / 3.6), Round(Width / 1.531), Height - Round(Height / 7.2), 'Нет');
+  DrawTextCentered(Round(Width / 3.272), Height - Round(Height / 3.2), Round(Width / 2.25), Height - Round(Height / 5.5), 'Да');
+  DrawTextCentered(Round(Width / 1.945), Height - Round(Height / 3.2), Round(Width / 1.531), Height - Round(Height / 5.5), 'Нет');
   UpdateWindow();
 end;
 //-----------------------------------------------------------------------//
@@ -293,13 +295,13 @@ end;
 //-----------------------------  Exit Window Mouse Down  -----------------------------//
 procedure ExitWindow_MD(MouseX, MouseY, mouseButton: integer);
 begin
-  if (mouseButton = 1) and (MouseX > Round(Width / 3.272)) and (MouseY > Height - Round(Height / 3.6)) and (MouseX < Round(Width / 2.25)) and (MouseY < Height - Round(Height / 7.2)) then
+  if (mouseButton = 1) and (MouseX > Round(Width / 3.272)) and (MouseY > Height - Round(Height / 3.2)) and (MouseX < Round(Width / 2.25)) and (MouseY < Height - Round(Height / 5.5)) then
   begin
     show_exit_window := false;
     exit_playing := true;
   end;
   
-  if (mouseButton = 1) and (MouseX > Round(Width / 1.945)) and (MouseY > Height - Round(Height / 3.6)) and (MouseX < Round(Width / 1.531)) and (MouseY < Height - Round(Height / 7.2)) then
+  if (mouseButton = 1) and (MouseX > Round(Width / 1.945)) and (MouseY > Height - Round(Height / 3.2)) and (MouseX < Round(Width / 1.531)) and (MouseY < Height - Round(Height / 5.5)) then
     show_exit_window := false;
 end;
 //-----------------------------------------------------------------------//

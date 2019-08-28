@@ -46,7 +46,7 @@ begin
   Rectangle(self.x1, self.y1, self.x2, self.y2);
   
   //Number
-  SetFontSize(Round(ScreenHeight / 45));
+  SetFontSize(Round(Abs(self.x2 - self.x1) / 2));
   SetFontName('Times New Roman');
   SetFontStyle(fsBold);
   
