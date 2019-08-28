@@ -236,14 +236,22 @@ begin
   Rectangle(Width - Round(Width / 4), Round(Height / 72), Width - Round(Width / 64), StatusBarSize - Round(Height / 72));
   Rectangle(245, 10, 395, StatusBarSize - 30);
   SetFontColor(rgb(255, 0, 0));
-  if (not lose) and (not victory) then played_seconds := Round((DateTime.Now - party_init_time).TotalSeconds);
+  
+  // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv  FIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIXXXXXXXXXXXXXXXXXXXXXXXXXX  vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+  if (not lose) and (not victory) and (not show_exit_window) then played_seconds := Round((DateTime.Now - party_init_time).TotalSeconds);
   DrawTextCentered(Round(Width / 64), Round(Height / 72), Round(Width / 4), StatusBarSize - Round(Height / 72), played_seconds);
   DrawTextCentered(Width - Round(Width / 4), Round(Height / 72), Width - Round(Width / 64), StatusBarSize - Round(Height / 72), bombsInGrid - CountFlags());
   DrawTextCentered(245, 10, 395, StatusBarSize - 30, GetScore());
   SetFontColor(rgb(255, 255, 255));
   SetFontSize(Round(14));
   DrawTextCentered(Round(Width / 4), StatusBarSize - 30, Width - Round(Width / 4), StatusBarSize, message);
-  
+  if show_exit_window then
+  begin
+    OnMouseDown := ExitWindow_MD;
+    OnKeyDown := ExitWindow_KD;
+    ExitWindow_Interface();
+  end;
+
   if (lose) or (victory) then
   begin
     ClearWindow(argb(130, 40, 40, 40));

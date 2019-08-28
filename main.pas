@@ -33,12 +33,6 @@ begin
         OnKeyDown := GameKeyDown;
         CheckGameStatus();
         Drawer();
-        while show_exit_window do
-        begin
-          OnMouseDown := ExitWindow_MD;
-          OnKeyDown := ExitWindow_KD;
-          ExitWindow_Interface();
-        end;
         if exit_playing then playing := false;
       end;
       while statistics do
