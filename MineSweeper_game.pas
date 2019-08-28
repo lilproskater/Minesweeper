@@ -4,22 +4,13 @@ interface
 
 Uses GraphABC, MineSweeper_Engine, System.Threading;
 
-const CellsInRow = 16;
-const CellSize = Round(ScreenHeight / CellsInRow / 1.4);
-const bombsInGrid = Round(Sqr(CellsInRow) / 6.4);
 const StatusBarSize = Round(ScreenHeight / 11.25);
-const Width = CellSize * CellsInRow;
-const Height = Width + StatusBarSize;
 const Database = 'data/data.dat';
 
 var
-  victory, lose, exit_playing, show_exit_window: boolean;
-  score, played_seconds: integer;
-  best_score, best_time: integer;
-  message: string;
-  timer_thread: Thread;
-  filer: text;
-  
+  victory, lose, exit_playing: boolean;
+  Width, Height: integer;
+
 procedure Init_Party();
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);
 procedure GameKeyDown(key: integer);
@@ -27,9 +18,36 @@ procedure CheckGameStatus();
 procedure Drawer();
 
 implementation
-
 var
-  grid: array [0..CellsInRow - 1, 0..CellsInRow - 1] of Cell;
+  bombsInGrid, CellSize, CellsInRow: integer;
+  score, played_seconds: integer;
+  best_score, best_time: integer;
+  message: string;
+  show_exit_window: boolean;
+  timer_thread: Thread;
+  grid: array [, ] of Cell;
+  filer: text;
+
+//-----------------------------  Private: Setup -----------------------------//
+procedure Setup();
+begin
+  CellsInRow := 16;
+  //Edit CellsInRow by file when Settings are done
+  CellSize := Round(ScreenHeight / CellsInRow / 1.4);
+  bombsInGrid := Round(Sqr(CellsInRow) / 6.4);
+  grid := new Cell[CellsInRow, CellsInRow];
+  victory := false;
+  lose := false;
+  exit_playing := false;
+  first_click := true;
+  mine_is_pressed := false;
+  played_seconds := 0;
+  score := 0;
+  best_score := 0;
+  best_time := 99999999;
+  message := '';
+end;
+//-----------------------------------------------------------------------//
 
 //-----------------------------  Private: Update Window  -----------------------------//
 procedure UpdateWindow();
@@ -86,7 +104,8 @@ procedure Rewrite_file();
 begin
   Rewrite(filer, Database);
   filer.Writeln(max(best_score, score));
-  filer.Writeln(min(best_time, played_seconds));   
+  if victory then filer.Writeln(min(best_time, played_seconds))
+  else filer.Writeln(best_time);
   filer.Close();
 end;
 //-----------------------------------------------------------------------//
@@ -95,32 +114,26 @@ end;
 //-----------------------------  Initialize Party  -----------------------------//
 procedure Init_Party();
 begin
-  lose := false;
-  victory := false;
-  first_click := true;
-  mine_is_pressed := false;
-  exit_playing := false;
-  played_seconds := 0;
-  score := 0;
+  Setup();
   timer_thread := Thread.Create(Count_Seconds);
   timer_thread.Start();
-  best_score := 0;
-  best_time := 99999999;
-  message := '';
-  try
+  try //Because file may not exsist
     Reset(filer, Database);
-    Readln(filer, best_score);
-    Readln(filer, best_time);
+    var best_score_handler, best_time_handler: string;
+    Readln(filer, best_score_handler);
+    Readln(filer, best_time_handler);
     filer.Close();
+    best_score := best_score_handler.ToInteger;
+    best_time := best_time_handler.ToInteger;
   except 
     
   end;
+  //if best_score > 
   //Firstly setting all cells empty
   //Setting x and y positions for each cell
   for var y := 0 to CellsInRow - 1 do
-    for var x := 0 to CellsInRow - 1 do 
+    for var x := 0 to CellsInRow - 1 do
       grid[y, x] := new Cell(x * CellSize, y * CellSize + StatusBarSize, (x + 1) * CellSize, (y + 1) * CellSize + StatusBarSize, false);
-
   //Setting Up Bombs
   var bombs_counter := bombsInGrid;
   while bombs_counter > 0 do
@@ -212,12 +225,12 @@ begin
   begin
     if (mouseButton = 1) and (MouseX > Round(Width / 36)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 6)) and (MouseY < Height - Round(Height / 36)) then 
     begin
-      if victory then Rewrite_file();
+      Rewrite_file();
       exit_playing := true;
     end;
     if (mouseButton = 1) and (MouseX > Round(Width / 4.235)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 2.666)) and (MouseY < Height - Round(Height / 36)) then 
     begin
-      if victory then Rewrite_file();
+      Rewrite_file();
       Init_Party();
     end;
   end; 
@@ -232,12 +245,12 @@ begin
   else show_exit_window := false;
   if (key = VK_Escape) and ((lose) or (victory)) then
   begin
-    if victory then Rewrite_file();
+    Rewrite_file();
     exit_playing := true;
   end;
   if (key = VK_Enter) and ((lose) or (victory)) then
   begin
-    if victory then Rewrite_file();
+    Rewrite_file();
     Init_Party();
   end;
 end;
@@ -254,7 +267,10 @@ begin
     var count_unrevealed := 0;
     for var y := 0 to CellsInRow - 1 do
       for var x := 0 to CellsInRow - 1 do
-        if not grid[y, x].revealed then count_unrevealed += 1;
+        try // Because Not all objects might be initialized
+          if not grid[y, x].revealed then count_unrevealed += 1;
+        except
+        end;
     if count_unrevealed = bombsInGrid then victory := true;
   end;
 end;
@@ -323,7 +339,11 @@ begin
   //Grid
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
+    try // Because Not all objects might be initialized
       grid[y, x].Draw();
+    except
+    end;
+ 
   //Status Bar Items
   SetFontSize(Round(ScreenHeight / 45));
   SetBrushColor(rgb(0, 0, 0));
@@ -331,14 +351,14 @@ begin
   SetPenColor(rgb(255, 255, 255));
   Rectangle(Round(Width / 64), Round(Height / 72), Round(Width / 4), StatusBarSize - Round(Height / 72));
   Rectangle(Width - Round(Width / 4), Round(Height / 72), Width - Round(Width / 64), StatusBarSize - Round(Height / 72));
-  Rectangle(245, 10, 395, StatusBarSize - 30);
+  Rectangle(Round(Width / 2.612), Round(Height / 72), Round(Width / 1.620), StatusBarSize - Round(Height / 24));
   SetFontColor(rgb(255, 0, 0));
   DrawTextCentered(Round(Width / 64), Round(Height / 72), Round(Width / 4), StatusBarSize - Round(Height / 72), played_seconds);
   DrawTextCentered(Width - Round(Width / 4), Round(Height / 72), Width - Round(Width / 64), StatusBarSize - Round(Height / 72), bombsInGrid - CountFlags());
-  DrawTextCentered(245, 10, 395, StatusBarSize - 30, score);
+  DrawTextCentered(Round(Width / 2.612), Round(Height / 72), Round(Width / 1.620), StatusBarSize - Round(Height / 24), score);
   SetFontColor(rgb(255, 255, 255));
-  SetFontSize(Round(14));
-  DrawTextCentered(Round(Width / 4), StatusBarSize - 30, Width - Round(Width / 4), StatusBarSize, message);
+  SetFontSize(Round(ScreenHeight / 64.285));
+  DrawTextCentered(Round(Width / 4), StatusBarSize - Round(Height / 24), Width - Round(Width / 4), StatusBarSize, message);
   while show_exit_window do
   begin
     OnMouseDown := ExitWindow_MD;
@@ -350,7 +370,10 @@ begin
   begin
     timer_thread.Abort();
     ClearWindow(argb(130, 40, 40, 40));
+    var new_best := '';
+    var new_best_score := score > best_score;
     SetFontSize(Round(Height / 14.5));
+    if new_best_score then new_best := 'Новый рекорд!';
     if lose then
     begin
       SetFontColor(rgb(255, 0, 0));
@@ -358,19 +381,15 @@ begin
     end;
     if victory then
     begin
-      SetFontColor(clLime);
-      DrawTextCentered(0, 0, Width, Height, 'Вы выиграли!');
-      SetFontColor(rgb(255, 255, 255));
-      SetFontSize(Round(ScreenHeight / 35));
-      var new_best := '';
-      var new_best_score := score > best_score;
       var new_best_time := played_seconds < best_time;
-      if new_best_score then new_best := 'Новый рекорд!';
       if new_best_time then new_best := 'Новое лучшее время!';
       if (new_best_score) and (new_best_time) then new_best := 'Новый рекорд и лучшее время!';
-      DrawTextCentered(0, 120, Width, Height, new_best);
-      
+      SetFontColor(clLime);
+      DrawTextCentered(0, 0, Width, Height, 'Вы выиграли!');
     end;
+    SetFontColor(rgb(255, 255, 255));
+    SetFontSize(Round(ScreenHeight / 35));
+    DrawTextCentered(0, Round(Height / 6), Width, Height, new_best);
     SetFontSize(Round(Height / 14.4));
     SetPenWidth(Round(Height / 102.857));
     SetPenColor(rgb(255, 255, 255));
@@ -386,7 +405,7 @@ end;
 //-----------------------------------------------------------------------//
 
 begin
-  victory := false;
-  lose := false;
-  exit_playing := false;
+  SetUp();
+  Width := CellSize * CellsInRow;
+  Height := Width + StatusBarSize;
 end.
