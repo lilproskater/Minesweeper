@@ -10,12 +10,15 @@ const bombsInGrid = Round(Sqr(CellsInRow) / 6.4);
 const StatusBarSize = Round(ScreenHeight / 11.25);
 const Width = CellSize * CellsInRow;
 const Height = Width + StatusBarSize;
+const Database = 'data/data.dat';
 
 var
   victory, lose, exit_playing, show_exit_window: boolean;
   score, played_seconds: integer;
+  best_score, best_time: integer;
   message: string;
   timer_thread: Thread;
+  filer: text;
   
 procedure Init_Party();
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);
@@ -78,6 +81,17 @@ end;
 //-----------------------------------------------------------------------//
 
 
+//-----------------------------  Private: Rewrite file  -----------------------------//
+procedure Rewrite_file();
+begin
+  Rewrite(filer, Database);
+  filer.Writeln(max(best_score, score));
+  filer.Writeln(min(best_time, played_seconds));   
+  filer.Close();
+end;
+//-----------------------------------------------------------------------//
+
+
 //-----------------------------  Initialize Party  -----------------------------//
 procedure Init_Party();
 begin
@@ -90,6 +104,17 @@ begin
   score := 0;
   timer_thread := Thread.Create(Count_Seconds);
   timer_thread.Start();
+  best_score := 0;
+  best_time := 0;
+  message := '';
+  try
+    Reset(filer, Database);
+    Readln(filer, best_score);
+    Readln(filer, best_time);
+    filer.Close();
+  except 
+    
+  end;
   //Firstly setting all cells empty
   //Setting x and y positions for each cell
   for var y := 0 to CellsInRow - 1 do
@@ -155,7 +180,6 @@ end;
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);
 begin
   if MouseY <= StatusBarSize then exit;
-  message := '';
   if not (lose) and not (victory) then
   begin
     var y := Trunc((MouseY - StatusBarSize) / CellSize);
@@ -176,6 +200,8 @@ begin
         end;
         first_click := false;
       end;
+      score := GetScore();
+      if score > best_score then message := 'Новый рекорд!';
     end
     else 
     begin
@@ -185,8 +211,16 @@ begin
   end
   else
   begin
-    if (mouseButton = 1) and (MouseX > Round(Width / 36)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 6)) and (MouseY < Height - Round(Height / 36)) then exit_playing := true;
-    if (mouseButton = 1) and (MouseX > Round(Width / 4.235)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 2.666)) and (MouseY < Height - Round(Height / 36)) then Init_Party();
+    if (mouseButton = 1) and (MouseX > Round(Width / 36)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 6)) and (MouseY < Height - Round(Height / 36)) then 
+    begin
+      Rewrite_file();
+      exit_playing := true;
+    end;
+    if (mouseButton = 1) and (MouseX > Round(Width / 4.235)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 2.666)) and (MouseY < Height - Round(Height / 36)) then 
+    begin
+      Rewrite_file();
+      Init_Party();
+    end;
   end; 
 end;
 //-----------------------------------------------------------------------//
@@ -198,9 +232,15 @@ begin
   if (key = VK_Escape) and not (lose) and not (victory) then show_exit_window := true
   else show_exit_window := false;
   if (key = VK_Escape) and ((lose) or (victory)) then
+  begin
+    Rewrite_file();
     exit_playing := true;
+  end;
   if (key = VK_Enter) and ((lose) or (victory)) then
+  begin
+    Rewrite_file();
     Init_Party();
+  end;
 end;
 //-----------------------------------------------------------------------//
 
@@ -248,6 +288,7 @@ procedure ExitWindow_MD(MouseX, MouseY, mouseButton: integer);
 begin
   if (mouseButton = 1) and (MouseX > Round(Width / 3.272)) and (MouseY > Height - Round(Height / 3.2)) and (MouseX < Round(Width / 2.25)) and (MouseY < Height - Round(Height / 5.5)) then
   begin
+    Rewrite_file();
     show_exit_window := false;
     exit_playing := true;
     timer_thread.Abort();
@@ -265,6 +306,7 @@ begin
   if key = VK_Escape then show_exit_window := false;
   if key = VK_Enter then 
   begin
+    Rewrite_file();
     show_exit_window := false;
     exit_playing := true;
     timer_thread.Abort();
@@ -296,7 +338,6 @@ begin
   SetFontColor(rgb(255, 0, 0));
   DrawTextCentered(Round(Width / 64), Round(Height / 72), Round(Width / 4), StatusBarSize - Round(Height / 72), played_seconds);
   DrawTextCentered(Width - Round(Width / 4), Round(Height / 72), Width - Round(Width / 64), StatusBarSize - Round(Height / 72), bombsInGrid - CountFlags());
-  score := GetScore();
   DrawTextCentered(245, 10, 395, StatusBarSize - 30, score);
   SetFontColor(rgb(255, 255, 255));
   SetFontSize(Round(14));
