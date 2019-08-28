@@ -30,6 +30,7 @@ implementation
 
 var grid: array [0..CellsInRow - 1, 0..CellsInRow - 1] of Cell; 
 
+//-----------------------------  Private: Update Window  -----------------------------//
 procedure UpdateWindow();
 begin
   try 
@@ -38,7 +39,19 @@ begin
 
   end;
 end;
+//-----------------------------------------------------------------------//
 
+
+//-----------------------------  Private: Count Flags  -----------------------------//
+function CountFlags(): integer;
+var counter: integer;
+begin
+  for var y := 0 to CellsInRow - 1 do
+    for var x := 0 to CellsInRow - 1 do
+    if grid[y, x].flag_is_put then counter += 1;
+  result := counter;
+end;
+//-----------------------------------------------------------------------//
 
 //-----------------------------  Initialize Party  -----------------------------//
 procedure Init_Party();
@@ -96,7 +109,7 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Open Cells Recursively  -----------------------------//
+//-----------------------------  Private: Open Cells Recursively  -----------------------------//
 procedure OpenCells(y_grid, x_grid: integer);
 begin
   if grid[y_grid, x_grid].contains_mine then exit;
@@ -212,6 +225,8 @@ begin
   SetFontColor(rgb(255, 0, 0));
   if (not lose) and (not victory) then played_seconds := Round((DateTime.Now - party_init_time).TotalSeconds);
   DrawTextCentered(10, 10, 160, StatusBarSize - 10, played_seconds);
+  
+  DrawTextCentered(WindowWidth - 160, 10, WindowWidth - 10, StatusBarSize - 10, bombsInGrid - CountFlags);
   
  if (lose) or (victory) then
  begin
