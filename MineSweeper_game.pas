@@ -105,7 +105,7 @@ begin
   timer_thread := Thread.Create(Count_Seconds);
   timer_thread.Start();
   best_score := 0;
-  best_time := 0;
+  best_time := 99999999;
   message := '';
   try
     Reset(filer, Database);
@@ -201,7 +201,6 @@ begin
         first_click := false;
       end;
       score := GetScore();
-      if score > best_score then message := 'Новый рекорд!';
     end
     else 
     begin
@@ -213,12 +212,12 @@ begin
   begin
     if (mouseButton = 1) and (MouseX > Round(Width / 36)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 6)) and (MouseY < Height - Round(Height / 36)) then 
     begin
-      Rewrite_file();
+      if victory then Rewrite_file();
       exit_playing := true;
     end;
     if (mouseButton = 1) and (MouseX > Round(Width / 4.235)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 2.666)) and (MouseY < Height - Round(Height / 36)) then 
     begin
-      Rewrite_file();
+      if victory then Rewrite_file();
       Init_Party();
     end;
   end; 
@@ -233,12 +232,12 @@ begin
   else show_exit_window := false;
   if (key = VK_Escape) and ((lose) or (victory)) then
   begin
-    Rewrite_file();
+    if victory then Rewrite_file();
     exit_playing := true;
   end;
   if (key = VK_Enter) and ((lose) or (victory)) then
   begin
-    Rewrite_file();
+    if victory then Rewrite_file();
     Init_Party();
   end;
 end;
@@ -288,7 +287,6 @@ procedure ExitWindow_MD(MouseX, MouseY, mouseButton: integer);
 begin
   if (mouseButton = 1) and (MouseX > Round(Width / 3.272)) and (MouseY > Height - Round(Height / 3.2)) and (MouseX < Round(Width / 2.25)) and (MouseY < Height - Round(Height / 5.5)) then
   begin
-    Rewrite_file();
     show_exit_window := false;
     exit_playing := true;
     timer_thread.Abort();
@@ -306,7 +304,6 @@ begin
   if key = VK_Escape then show_exit_window := false;
   if key = VK_Enter then 
   begin
-    Rewrite_file();
     show_exit_window := false;
     exit_playing := true;
     timer_thread.Abort();
@@ -356,13 +353,23 @@ begin
     SetFontSize(Round(Height / 14.5));
     if lose then
     begin
-      SetFontColor(clRed);
+      SetFontColor(rgb(255, 0, 0));
       DrawTextCentered(0, 0, Width, Height, 'Вы проиграли!');
     end;
     if victory then
     begin
       SetFontColor(clLime);
       DrawTextCentered(0, 0, Width, Height, 'Вы выиграли!');
+      SetFontColor(rgb(255, 255, 255));
+      SetFontSize(Round(ScreenHeight / 35));
+      var new_best := '';
+      var new_best_score := score > best_score;
+      var new_best_time := played_seconds < best_time;
+      if new_best_score then new_best := 'Новый рекорд!';
+      if new_best_time then new_best := 'Новое лучшее время!';
+      if (new_best_score) and (new_best_time) then new_best := 'Новый рекорд и лучшее время!';
+      DrawTextCentered(0, 120, Width, Height, new_best);
+      
     end;
     SetFontSize(Round(Height / 14.4));
     SetPenWidth(Round(Height / 102.857));
