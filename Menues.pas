@@ -82,7 +82,8 @@ begin
   if (mouseButton = 1) and (MouseX > play_btn.x1) and (MouseY > play_btn.y1) and (MouseX < play_btn.x2) and (MouseY < play_btn.y2) then 
   begin
     playing := true;
-    Init_party();
+    MineSweeper_game.Init_party();
+    MineSweeper_game.party_init_time := DateTime.Now;
   end;
   if (mouseButton = 1) and (MouseX > stats_btn.x1) and (MouseY > stats_btn.y1) and (MouseX < stats_btn.x2) and (MouseY < stats_btn.y2) then statistics := true;
   if (mouseButton = 1) and (MouseX > settings_btn.x1) and (MouseY > settings_btn.y1) and (MouseX < settings_btn.x2) and (MouseY < settings_btn.y2) then settings := true;
@@ -94,7 +95,7 @@ begin
   if key = VK_Enter then 
   begin
     playing := true;
-    Init_party();
+    MineSweeper_game.Init_party();
   end;
 end;
 //-----------------------------------------------------------------------//
