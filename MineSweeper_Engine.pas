@@ -16,7 +16,8 @@ type
     procedure Draw();
   end;
 
-var mine_is_pressed, first_click: boolean;
+var
+  mine_is_pressed, first_click: boolean;
 
 implementation
 
@@ -33,15 +34,18 @@ end;
 
 procedure Cell.Draw();
 begin
-  //Cell color
+  // Cell color
   if self.revealed then SetBrushColor(rgb(153, 153, 153))
   else SetBrushColor(rgb(204, 204, 204));
   
-  //Flag Color
+  // Flag Color
   if self.flag_is_put then SetBrushColor(rgb(255, 0, 0));
   
   // Mine Color 
   if (self.contains_mine) and (mine_is_pressed) then SetBrushColor(rgb(0, 0, 0));
+  
+  // After lose
+  if (self.contains_mine) and (self.flag_is_put) and (mine_is_pressed) then SetBrushColor(rgb(102, 0, 0));
   
   Rectangle(self.x1, self.y1, self.x2, self.y2);
   
