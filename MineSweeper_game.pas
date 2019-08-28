@@ -13,11 +13,10 @@ const Height = Width + StatusBarSize;
 
 var
   victory, lose, exit_playing, show_exit_window: boolean;
-  played_seconds: integer;
+  score, played_seconds: integer;
   message: string;
   timer_thread: Thread;
   
-
 procedure Init_Party();
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);
 procedure GameKeyDown(key: integer);
@@ -82,16 +81,17 @@ end;
 //-----------------------------  Initialize Party  -----------------------------//
 procedure Init_Party();
 begin
-  //Firstly setting all cells empty
-  //Setting x and y positions for each cell
   lose := false;
   victory := false;
   first_click := true;
   mine_is_pressed := false;
   exit_playing := false;
   played_seconds := 0;
+  score := 0;
   timer_thread := Thread.Create(Count_Seconds);
   timer_thread.Start();
+  //Firstly setting all cells empty
+  //Setting x and y positions for each cell
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do 
       grid[y, x] := new Cell(x * CellSize, y * CellSize + StatusBarSize, (x + 1) * CellSize, (y + 1) * CellSize + StatusBarSize, false);
@@ -296,7 +296,8 @@ begin
   SetFontColor(rgb(255, 0, 0));
   DrawTextCentered(Round(Width / 64), Round(Height / 72), Round(Width / 4), StatusBarSize - Round(Height / 72), played_seconds);
   DrawTextCentered(Width - Round(Width / 4), Round(Height / 72), Width - Round(Width / 64), StatusBarSize - Round(Height / 72), bombsInGrid - CountFlags());
-  DrawTextCentered(245, 10, 395, StatusBarSize - 30, GetScore());
+  score := GetScore();
+  DrawTextCentered(245, 10, 395, StatusBarSize - 30, score);
   SetFontColor(rgb(255, 255, 255));
   SetFontSize(Round(14));
   DrawTextCentered(Round(Width / 4), StatusBarSize - 30, Width - Round(Width / 4), StatusBarSize, message);
