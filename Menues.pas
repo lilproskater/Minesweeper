@@ -96,6 +96,7 @@ begin
   begin
     playing := true;
     MineSweeper_game.Init_party();
+    MineSweeper_game.party_init_time := DateTime.Now;
   end;
 end;
 //-----------------------------------------------------------------------//
