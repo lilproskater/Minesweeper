@@ -61,7 +61,7 @@ var
 begin
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
-      if (grid[y, x].revealed) and (not grid[y, x].contains_mine) then counter += 50;
+      if (grid[y, x].revealed) and not (grid[y, x].contains_mine) then counter += 50;
   result := counter;
 end;
 //-----------------------------------------------------------------------//
@@ -73,7 +73,7 @@ begin
   while true do
   begin
     sleep(1000);
-    if (not show_exit_window) and (not lose) and (not victory) then played_seconds += 1;
+    if not (show_exit_window) and not(lose) and not (victory) then played_seconds += 1;
   end;
 end;
 //-----------------------------------------------------------------------//
@@ -163,7 +163,7 @@ begin
     if mouseButton = 1 then
     begin
       if (grid[y, x].number <> 0) or (grid[y, x].contains_mine) then grid[y, x].Click(1)
-      else OpenCells(y, x);
+      else if not grid[y, x].flag_is_put then OpenCells(y, x);
       if first_click then 
       begin
         if mine_is_pressed then
@@ -172,7 +172,7 @@ begin
           while grid[y, x].contains_mine do
             Init_Party();
           if grid[y, x].number <> 0 then grid[y, x].Click(1)
-          else OpenCells(y, x); 
+          else if not grid[y, x].flag_is_put then OpenCells(y, x); 
         end;
         first_click := false;
       end;
