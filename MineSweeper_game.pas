@@ -2,7 +2,7 @@
 
 interface
 
-Uses GraphABC, MineSweeper_Engine;
+Uses GraphABC, MineSweeper_Engine, System.Threading;
 
 const CellsInRow = 16;
 const CellSize = Round(ScreenHeight / CellsInRow / 1.4);
@@ -13,9 +13,10 @@ const Height = Width + StatusBarSize;
 
 var
   victory, lose, exit_playing, show_exit_window: boolean;
-  party_init_time: datetime;
   played_seconds: integer;
   message: string;
+  timer_thread: Thread;
+  
 
 procedure Init_Party();
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);
@@ -66,6 +67,18 @@ end;
 //-----------------------------------------------------------------------//
 
 
+//-----------------------------  Private: Count Seconds  -----------------------------//
+procedure Count_Seconds();
+begin
+  while true do
+  begin
+    sleep(1000);
+    if (not show_exit_window) and (not lose) and (not victory) then played_seconds += 1;
+  end;
+end;
+//-----------------------------------------------------------------------//
+
+
 //-----------------------------  Initialize Party  -----------------------------//
 procedure Init_Party();
 begin
@@ -76,6 +89,9 @@ begin
   first_click := true;
   mine_is_pressed := false;
   exit_playing := false;
+  played_seconds := 0;
+  timer_thread := Thread.Create(Count_Seconds);
+  timer_thread.Start();
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do 
       grid[y, x] := new Cell(x * CellSize, y * CellSize + StatusBarSize, (x + 1) * CellSize, (y + 1) * CellSize + StatusBarSize, false);
@@ -170,11 +186,7 @@ begin
   else
   begin
     if (mouseButton = 1) and (MouseX > Round(Width / 36)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 6)) and (MouseY < Height - Round(Height / 36)) then exit_playing := true;
-    if (mouseButton = 1) and (MouseX > Round(Width / 4.235)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 2.666)) and (MouseY < Height - Round(Height / 36)) then
-    begin
-      Init_Party();
-      party_init_time := DateTime.Now;
-    end;
+    if (mouseButton = 1) and (MouseX > Round(Width / 4.235)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 2.666)) and (MouseY < Height - Round(Height / 36)) then Init_Party();
   end; 
 end;
 //-----------------------------------------------------------------------//
@@ -238,6 +250,7 @@ begin
   begin
     show_exit_window := false;
     exit_playing := true;
+    timer_thread.Abort();
   end;
   
   if (mouseButton = 1) and (MouseX > Round(Width / 1.945)) and (MouseY > Height - Round(Height / 3.2)) and (MouseX < Round(Width / 1.531)) and (MouseY < Height - Round(Height / 5.5)) then
@@ -254,6 +267,7 @@ begin
   begin
     show_exit_window := false;
     exit_playing := true;
+    timer_thread.Abort();
   end;
 end;
 //-----------------------------------------------------------------------//
@@ -295,6 +309,7 @@ begin
   
   if (lose) or (victory) then
   begin
+    timer_thread.Abort();
     ClearWindow(argb(130, 40, 40, 40));
     SetFontSize(Round(Height / 14.5));
     if lose then
@@ -316,8 +331,7 @@ begin
     SetFontColor(rgb(255, 255, 255));
     DrawTextCentered(Round(Width / 36), Height - Round(Height / 6), Round(Width / 6), Height - Round(Height / 36), '←');
     DrawTextCentered(Round(Width / 4.235), Height - Round(Height / 6), Round(Width / 2.666), Height - Round(Height / 36), '►');
-  end
-  else played_seconds := Round((DateTime.Now - party_init_time).TotalSeconds);
+  end;
   UpdateWindow();
 end;
 //-----------------------------------------------------------------------//
