@@ -68,7 +68,10 @@ var
 begin
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
+    try // Because Not all objects might be initialized yet
+    except
       if grid[y, x].flag_is_put then counter += 1;
+    end;
   result := counter;
 end;
 //-----------------------------------------------------------------------//
@@ -81,7 +84,10 @@ var
 begin
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
+    try // Because Not all objects might be initialized yet
+    except
       if (grid[y, x].revealed) and not (grid[y, x].contains_mine) then counter += 50;
+    end;
   result := counter;
 end;
 //-----------------------------------------------------------------------//
@@ -115,7 +121,7 @@ end;
 procedure Init_Party();
 begin
   Setup();
-  timer_thread := Thread.Create(Count_Seconds);
+  timer_thread := new Thread(Count_Seconds);
   timer_thread.Start();
   try //Because file may not exsist
     Reset(filer, Database);
@@ -199,8 +205,6 @@ begin
     var x := Trunc(MouseX / CellSize);
     if mouseButton = 1 then
     begin
-      if (grid[y, x].number <> 0) or (grid[y, x].contains_mine) then grid[y, x].Click(1)
-      else if not grid[y, x].flag_is_put then OpenCells(y, x);
       if first_click then 
       begin
         if mine_is_pressed then
@@ -213,6 +217,8 @@ begin
         end;
         first_click := false;
       end;
+      if (grid[y, x].number <> 0) or (grid[y, x].contains_mine) then grid[y, x].Click(1)
+      else if not grid[y, x].flag_is_put then OpenCells(y, x);
       score := GetScore();
     end
     else 
@@ -226,11 +232,13 @@ begin
     if (mouseButton = 1) and (MouseX > Round(Width / 36)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 6)) and (MouseY < Height - Round(Height / 36)) then 
     begin
       Rewrite_file();
+      timer_thread.Abort();
       exit_playing := true;
     end;
     if (mouseButton = 1) and (MouseX > Round(Width / 4.235)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 2.666)) and (MouseY < Height - Round(Height / 36)) then 
     begin
       Rewrite_file();
+      timer_thread.Abort();
       Init_Party();
     end;
   end; 
@@ -246,11 +254,13 @@ begin
   if (key = VK_Escape) and ((lose) or (victory)) then
   begin
     Rewrite_file();
+    timer_thread.Abort();
     exit_playing := true;
   end;
   if (key = VK_Enter) and ((lose) or (victory)) then
   begin
     Rewrite_file();
+    timer_thread.Abort();
     Init_Party();
   end;
 end;
@@ -267,7 +277,7 @@ begin
     var count_unrevealed := 0;
     for var y := 0 to CellsInRow - 1 do
       for var x := 0 to CellsInRow - 1 do
-        try // Because Not all objects might be initialized
+        try // Because Not all objects might be initialized yet
           if not grid[y, x].revealed then count_unrevealed += 1;
         except
         end;
@@ -339,7 +349,7 @@ begin
   //Grid
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
-    try // Because Not all objects might be initialized
+    try // Because Not all objects might be initialized yet
       grid[y, x].Draw();
     except
     end;
