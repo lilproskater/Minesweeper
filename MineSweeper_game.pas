@@ -69,8 +69,8 @@ begin
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
     try // Because Not all objects might be initialized yet
-    except
       if grid[y, x].flag_is_put then counter += 1;
+    except
     end;
   result := counter;
 end;
@@ -85,8 +85,8 @@ begin
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
     try // Because Not all objects might be initialized yet
-    except
       if (grid[y, x].revealed) and not (grid[y, x].contains_mine) then counter += 50;
+    except
     end;
   result := counter;
 end;
