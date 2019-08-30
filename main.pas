@@ -8,6 +8,7 @@ begin
   Window.CenterOnScreen;
   Window.Title := 'MineSweeper';
   Window.IsFixedSize := true;
+  OnClose := halt;
 end;
 
 procedure Main_SetUp();
