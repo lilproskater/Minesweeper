@@ -82,6 +82,7 @@ begin
   if (mouseButton = 1) and (MouseX > play_btn.x1) and (MouseY > play_btn.y1) and (MouseX < play_btn.x2) and (MouseY < play_btn.y2) then 
   begin
     playing := true;
+    MineSweeper_game.SetUp();
     MineSweeper_game.Init_party();
   end;
   if (mouseButton = 1) and (MouseX > stats_btn.x1) and (MouseY > stats_btn.y1) and (MouseX < stats_btn.x2) and (MouseY < stats_btn.y2) then statistics := true;
@@ -94,6 +95,7 @@ begin
   if key = VK_Enter then 
   begin
     playing := true;
+    MineSweeper_game.SetUp();
     MineSweeper_game.Init_party();
   end;
 end;

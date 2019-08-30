@@ -11,6 +11,7 @@ var
   victory, lose, exit_playing: boolean;
   Width, Height: integer;
 
+procedure Setup();
 procedure Init_Party();
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);
 procedure GameKeyDown(key: integer);
@@ -28,27 +29,6 @@ var
   grid: array [, ] of Cell;
   filer: text;
 
-//-----------------------------  Private: Setup -----------------------------//
-procedure Setup();
-begin
-  CellsInRow := 16;
-  //Edit CellsInRow by file when Settings are done
-  CellSize := Round(ScreenHeight / CellsInRow / 1.4);
-  bombsInGrid := Round(Sqr(CellsInRow) / 6.4);
-  grid := new Cell[CellsInRow, CellsInRow];
-  victory := false;
-  lose := false;
-  exit_playing := false;
-  first_click := true;
-  mine_is_pressed := false;
-  played_seconds := 0;
-  score := 0;
-  best_score := 0;
-  best_time := 99999999;
-  message := '';
-end;
-//-----------------------------------------------------------------------//
-
 //-----------------------------  Private: Update Window  -----------------------------//
 procedure UpdateWindow();
 begin
@@ -56,6 +36,18 @@ begin
     Redraw();
   except
   
+  end;
+end;
+//-----------------------------------------------------------------------//
+
+
+//-----------------------------  Private: Count Seconds  -----------------------------//
+procedure Count_Seconds();
+begin
+  while true do
+  begin
+    sleep(1000);
+    if not (show_exit_window) and not(lose) and not (victory) then played_seconds += 1;
   end;
 end;
 //-----------------------------------------------------------------------//
@@ -93,14 +85,27 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Private: Count Seconds  -----------------------------//
-procedure Count_Seconds();
+//-----------------------------  Private: Open Cells Recursively  -----------------------------//
+procedure OpenCells(y_grid, x_grid: integer);
 begin
-  while true do
-  begin
-    sleep(1000);
-    if not (show_exit_window) and not(lose) and not (victory) then played_seconds += 1;
-  end;
+  if grid[y_grid, x_grid].contains_mine then exit;
+  if grid[y_grid, x_grid].revealed then exit;
+  if grid[y_grid, x_grid].number <> 0 then exit;
+  if not grid[y_grid, x_grid].flag_is_put then grid[y_grid, x_grid].Click(1);
+  if y_grid > 0 then OpenCells(y_grid - 1, x_grid);
+  if y_grid < CellsInRow - 1 then OpenCells(y_grid + 1, x_grid);
+  if x_grid > 0 then OpenCells(y_grid, x_grid - 1);
+  if x_grid < CellsInRow - 1 then OpenCells(y_grid, x_grid + 1);
+  
+  //Reveal nearby cells with nubmers
+  if y_grid > 0 then if grid[y_grid - 1, x_grid].number <> 0 then grid[y_grid - 1, x_grid].Click(1);
+  if y_grid < CellsInRow - 1 then if grid[y_grid + 1, x_grid].number <> 0 then grid[y_grid + 1, x_grid].Click(1);
+  if x_grid > 0 then if grid[y_grid, x_grid - 1].number <> 0 then grid[y_grid, x_grid - 1].Click(1);
+  if x_grid < CellsInRow - 1 then if grid[y_grid, x_grid + 1].number <> 0 then grid[y_grid, x_grid + 1].Click(1);
+  if (y_grid > 0) and (x_grid > 0) then if grid[y_grid - 1, x_grid - 1].number <> 0 then grid[y_grid - 1, x_grid - 1].Click(1);
+  if (y_grid > 0) and (x_grid < CellsInRow - 1) then if grid[y_grid - 1, x_grid + 1].number <> 0 then grid[y_grid - 1, x_grid + 1].Click(1);
+  if (y_grid < CellsInRow - 1) and (x_grid > 0) then if grid[y_grid + 1, x_grid - 1].number <> 0 then grid[y_grid + 1, x_grid - 1].Click(1);
+  if (y_grid < CellsInRow - 1) and (x_grid < CellsInRow - 1) then if grid[y_grid + 1, x_grid + 1].number <> 0 then grid[y_grid + 1, x_grid + 1].Click(1);
 end;
 //-----------------------------------------------------------------------//
 
@@ -117,12 +122,31 @@ end;
 //-----------------------------------------------------------------------//
 
 
+//-----------------------------  Setup -----------------------------//
+procedure Setup();
+begin
+  CellsInRow := 16;
+  //Edit CellsInRow by file when Settings are done
+  CellSize := Round(ScreenHeight / CellsInRow / 1.4);
+  bombsInGrid := Round(Sqr(CellsInRow) / 6.4);
+  grid := new Cell[CellsInRow, CellsInRow];
+  victory := false;
+  lose := false;
+  exit_playing := false;
+  first_click := true;
+  mine_is_pressed := false;
+  played_seconds := 0;
+  score := 0;
+  best_score := 0;
+  best_time := 99999999;
+  message := '';
+end;
+//-----------------------------------------------------------------------//
+
+
 //-----------------------------  Initialize Party  -----------------------------//
 procedure Init_Party();
 begin
-  Setup();
-  timer_thread := new Thread(Count_Seconds);
-  timer_thread.Start();
   try //Because file may not exsist
     Reset(filer, Database);
     var best_score_handler, best_time_handler: string;
@@ -134,7 +158,6 @@ begin
   except 
     
   end;
-  //if best_score > 
   //Firstly setting all cells empty
   //Setting x and y positions for each cell
   for var y := 0 to CellsInRow - 1 do
@@ -170,31 +193,6 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Private: Open Cells Recursively  -----------------------------//
-procedure OpenCells(y_grid, x_grid: integer);
-begin
-  if grid[y_grid, x_grid].contains_mine then exit;
-  if grid[y_grid, x_grid].revealed then exit;
-  if grid[y_grid, x_grid].number <> 0 then exit;
-  if not grid[y_grid, x_grid].flag_is_put then grid[y_grid, x_grid].Click(1);
-  if y_grid > 0 then OpenCells(y_grid - 1, x_grid);
-  if y_grid < CellsInRow - 1 then OpenCells(y_grid + 1, x_grid);
-  if x_grid > 0 then OpenCells(y_grid, x_grid - 1);
-  if x_grid < CellsInRow - 1 then OpenCells(y_grid, x_grid + 1);
-  
-  //Reveal nearby cells with nubmers
-  if y_grid > 0 then if grid[y_grid - 1, x_grid].number <> 0 then grid[y_grid - 1, x_grid].Click(1);
-  if y_grid < CellsInRow - 1 then if grid[y_grid + 1, x_grid].number <> 0 then grid[y_grid + 1, x_grid].Click(1);
-  if x_grid > 0 then if grid[y_grid, x_grid - 1].number <> 0 then grid[y_grid, x_grid - 1].Click(1);
-  if x_grid < CellsInRow - 1 then if grid[y_grid, x_grid + 1].number <> 0 then grid[y_grid, x_grid + 1].Click(1);
-  if (y_grid > 0) and (x_grid > 0) then if grid[y_grid - 1, x_grid - 1].number <> 0 then grid[y_grid - 1, x_grid - 1].Click(1);
-  if (y_grid > 0) and (x_grid < CellsInRow - 1) then if grid[y_grid - 1, x_grid + 1].number <> 0 then grid[y_grid - 1, x_grid + 1].Click(1);
-  if (y_grid < CellsInRow - 1) and (x_grid > 0) then if grid[y_grid + 1, x_grid - 1].number <> 0 then grid[y_grid + 1, x_grid - 1].Click(1);
-  if (y_grid < CellsInRow - 1) and (x_grid < CellsInRow - 1) then if grid[y_grid + 1, x_grid + 1].number <> 0 then grid[y_grid + 1, x_grid + 1].Click(1);
-end;
-//-----------------------------------------------------------------------//
-
-
 //-----------------------------  Game Mouse Down  -----------------------------//
 procedure GameMouseDown(MouseX, MouseY, mouseButton: integer);
 begin
@@ -205,20 +203,22 @@ begin
     var x := Trunc(MouseX / CellSize);
     if mouseButton = 1 then
     begin
+      if (grid[y, x].number <> 0) or (grid[y, x].contains_mine) then grid[y, x].Click(1)
+      else if not grid[y, x].flag_is_put then OpenCells(y, x);
       if first_click then 
       begin
+        first_click := false;
+        timer_thread := new Thread(Count_Seconds);
+        timer_thread.Start();
         if mine_is_pressed then
         begin
           mine_is_pressed := false;
           while grid[y, x].contains_mine do
             Init_Party();
           if grid[y, x].number <> 0 then grid[y, x].Click(1)
-          else if not grid[y, x].flag_is_put then OpenCells(y, x); 
+          else OpenCells(y, x); 
         end;
-        first_click := false;
       end;
-      if (grid[y, x].number <> 0) or (grid[y, x].contains_mine) then grid[y, x].Click(1)
-      else if not grid[y, x].flag_is_put then OpenCells(y, x);
       score := GetScore();
     end
     else 
@@ -239,6 +239,7 @@ begin
     begin
       Rewrite_file();
       timer_thread.Abort();
+      SetUp();
       Init_Party();
     end;
   end; 
@@ -261,6 +262,7 @@ begin
   begin
     Rewrite_file();
     timer_thread.Abort();
+    SetUp();
     Init_Party();
   end;
 end;
@@ -415,7 +417,7 @@ end;
 //-----------------------------------------------------------------------//
 
 begin
-  SetUp();
+  Setup();
   Width := CellSize * CellsInRow;
   Height := Width + StatusBarSize;
 end.
