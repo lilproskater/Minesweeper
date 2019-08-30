@@ -92,7 +92,9 @@ procedure OpenCells(y_grid, x_grid: integer);
 begin
   if grid[y_grid, x_grid].contains_mine then exit;
   if grid[y_grid, x_grid].revealed then exit;
+  if grid[y_grid, x_grid].flag_is_put then exit;
   if grid[y_grid, x_grid].number <> 0 then exit;
+  //Opening empty cells around except diagonal ones
   if not grid[y_grid, x_grid].flag_is_put then grid[y_grid, x_grid].Click(1);
   if y_grid > 0 then OpenCells(y_grid - 1, x_grid);
   if y_grid < CellsInRow - 1 then OpenCells(y_grid + 1, x_grid);
@@ -124,7 +126,7 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Setup -----------------------------//
+//-----------------------------  Setup  -----------------------------//
 procedure Setup();
 begin
   CellsInRow := 16;
@@ -139,9 +141,27 @@ begin
   mine_is_pressed := false;
   played_seconds := 0;
   score := 0;
-  best_score := 0;
-  best_time := 99999999;
+  best_score := 0; //Init value of best_score if file does not exist
+  best_time := 99999999; //Init value of best_time if file does not exist
   message := '';
+  try //Because file may not exsist
+    Reset(filer, Database);
+    var best_score_handler, best_time_handler: string;
+    Readln(filer, best_score_handler);
+    Readln(filer, best_time_handler);
+    filer.Close();
+    //67500 is the max value of score (40 x 40 grid - bombsInGrid), where bombsInGrid = 250
+    if (best_score_handler.ToInteger < 4) or (best_score_handler.ToInteger > 67500) then
+      Rewrite_file()
+    else
+    begin
+      best_score := best_score_handler.ToInteger;
+      best_time := best_time_handler.ToInteger;
+    end;
+  except 
+    on System.Exception do
+      Rewrite_file();
+  end;
 end;
 //-----------------------------------------------------------------------//
 
@@ -149,18 +169,6 @@ end;
 //-----------------------------  Initialize Party  -----------------------------//
 procedure Init_Party();
 begin
-  try //Because file may not exsist
-    Reset(filer, Database);
-    var best_score_handler, best_time_handler: string;
-    Readln(filer, best_score_handler);
-    Readln(filer, best_time_handler);
-    filer.Close();
-    best_score := best_score_handler.ToInteger;
-    best_time := best_time_handler.ToInteger;
-  except 
-    on System.Exception do
-      Rewrite_file();
-  end;
   //Initializing cells
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
@@ -235,13 +243,11 @@ begin
     if (mouseButton = 1) and (MouseX > Round(Width / 36)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 6)) and (MouseY < Height - Round(Height / 36)) then 
     begin
       Rewrite_file();
-      timer_thread.Abort();
       exit_playing := true;
     end;
     if (mouseButton = 1) and (MouseX > Round(Width / 4.235)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 2.666)) and (MouseY < Height - Round(Height / 36)) then 
     begin
       Rewrite_file();
-      timer_thread.Abort();
       SetUp();
       Init_Party();
     end;
@@ -258,13 +264,11 @@ begin
   if (key = VK_Escape) and ((lose) or (victory)) then
   begin
     Rewrite_file();
-    timer_thread.Abort();
     exit_playing := true;
   end;
   if (key = VK_Enter) and ((lose) or (victory)) then
   begin
     Rewrite_file();
-    timer_thread.Abort();
     SetUp();
     Init_Party();
   end;
@@ -320,8 +324,8 @@ begin
   if (mouseButton = 1) and (MouseX > Round(Width / 3.272)) and (MouseY > Height - Round(Height / 3.2)) and (MouseX < Round(Width / 2.25)) and (MouseY < Height - Round(Height / 5.5)) then
   begin
     show_exit_window := false;
+    if timer_thread <> nil then timer_thread.Abort();
     exit_playing := true;
-    timer_thread.Abort();
   end;
   
   if (mouseButton = 1) and (MouseX > Round(Width / 1.945)) and (MouseY > Height - Round(Height / 3.2)) and (MouseX < Round(Width / 1.531)) and (MouseY < Height - Round(Height / 5.5)) then
@@ -337,8 +341,8 @@ begin
   if key = VK_Enter then 
   begin
     show_exit_window := false;
+    if timer_thread <> nil then timer_thread.Abort();
     exit_playing := true;
-    timer_thread.Abort();
   end;
 end;
 //-----------------------------------------------------------------------//
