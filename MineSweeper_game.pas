@@ -26,7 +26,7 @@ var
   message: string;
   show_exit_window: boolean;
   timer_thread: Thread;
-  grid: array [, ] of Cell;
+  grid: array [,] of Cell;
   filer: text;
 
 //-----------------------------  Private: Update Window  -----------------------------//
@@ -35,7 +35,7 @@ begin
   try
     Redraw();
   except
-  
+    on System.Exception do
   end;
 end;
 //-----------------------------------------------------------------------//
@@ -63,6 +63,7 @@ begin
     try // Because Not all objects might be initialized yet
       if grid[y, x].flag_is_put then counter += 1;
     except
+      on System.Exception do
     end;
   result := counter;
 end;
@@ -79,6 +80,7 @@ begin
     try // Because Not all objects might be initialized yet
       if (grid[y, x].revealed) and not (grid[y, x].contains_mine) then counter += 50;
     except
+      on System.Exception do
     end;
   result := counter;
 end;
@@ -156,10 +158,10 @@ begin
     best_score := best_score_handler.ToInteger;
     best_time := best_time_handler.ToInteger;
   except 
-    
+    on System.Exception do
+      Rewrite_file();
   end;
-  //Firstly setting all cells empty
-  //Setting x and y positions for each cell
+  //Initializing cells
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
       grid[y, x] := new Cell(x * CellSize, y * CellSize + StatusBarSize, (x + 1) * CellSize, (y + 1) * CellSize + StatusBarSize, false);
@@ -220,6 +222,7 @@ begin
         end;
       end;
       score := GetScore();
+      if score > best_score then message := 'Новый рекорд!';
     end
     else 
     begin
@@ -282,6 +285,7 @@ begin
         try // Because Not all objects might be initialized yet
           if not grid[y, x].revealed then count_unrevealed += 1;
         except
+          on System.Exception do
         end;
     if count_unrevealed = bombsInGrid then victory := true;
   end;
@@ -354,6 +358,7 @@ begin
     try // Because Not all objects might be initialized yet
       grid[y, x].Draw();
     except
+      on System.Exception do
     end;
  
   //Status Bar Items
