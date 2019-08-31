@@ -57,6 +57,7 @@ var
   
   //Statistics
   best_score, best_time: integer;
+  wipe_game_data: boolean;
   
   //Settings
   level: string;
@@ -115,9 +116,9 @@ procedure MainMenu_MD(MouseX, MouseY, mouseButton: integer);
 begin
   if (mouseButton = 1) and (MouseX > play_btn.x1) and (MouseY > play_btn.y1) and (MouseX < play_btn.x2) and (MouseY < play_btn.y2) then 
   begin
-    playing := true;
     MineSweeper_game.SetUp();
     MineSweeper_game.Init_party();
+    playing := true;
   end;
   if (mouseButton = 1) and (MouseX > stats_btn.x1) and (MouseY > stats_btn.y1) and (MouseX < stats_btn.x2) and (MouseY < stats_btn.y2) then statistics := true;
   if (mouseButton = 1) and (MouseX > settings_btn.x1) and (MouseY > settings_btn.y1) and (MouseX < settings_btn.x2) and (MouseY < settings_btn.y2) then settings := true;
@@ -131,9 +132,60 @@ procedure MainMenu_KU(key: integer);
 begin
   if key = VK_Enter then 
   begin
-    playing := true;
     MineSweeper_game.SetUp();
     MineSweeper_game.Init_party();
+    playing := true;
+  end;
+end;
+//-----------------------------------------------------------------------//
+
+
+//-----------------------------  Private: Submit Wipe Interface  -----------------------------//
+procedure SubmitWipe_Interface();
+begin
+  SetPenColor(rgb(255, 255, 255));
+  SetBrushColor(rgb(185, 185, 185));
+  SetFontColor(rgb(255, 255, 255));
+  SetPenWidth(Round(Height / 102.835));
+  SetFontName('Times New Roman');
+  SetFontSize(Round(Height / 24));
+  Rectangle(Round(Width / 14.4), Round(Height / 14.4), Width - Round(Width / 14.4), Height - Round(Height / 14.4));
+  DrawTextCentered(Round(Width / 9), Round(Height / 9), Width - Round(Width / 14.4), Round(Height / 3.428), 'Вы действительно хотите очистить статистику?');
+  Rectangle(Round(Width / 3.272), Height - Round(Height / 3.6), Round(Width / 2.25), Height - Round(Height / 6.792));
+  Rectangle(Round(Width / 1.945), Height - Round(Height / 3.6), Round(Width / 1.531), Height - Round(Height / 6.792));
+  SetFontSize(Round(Height / 28.8));
+  DrawTextCentered(Round(Width / 3.272), Height - Round(Height / 3.6), Round(Width / 2.25), Height - Round(Height / 6.792), 'Да');
+  DrawTextCentered(Round(Width / 1.945), Height - Round(Height / 3.6), Round(Width / 1.531), Height - Round(Height / 6.792), 'Нет');
+  Redraw();
+end;
+//-----------------------------------------------------------------------//
+
+
+//-----------------------------  Private: Submit Wipe Mouse Down  -----------------------------//
+procedure SubmitWipe_MD(MouseX, MouseY, mouseButton: integer);
+begin
+  if (mouseButton = 1) and (MouseX > Round(Width / 3.272)) and (MouseY > Height - Round(Height / 3.6)) and (MouseX < Round(Width / 2.25)) and (MouseY < Height - Round(Height / 6.792)) then
+  begin
+    best_score := 0; //Init value of best_score if file does not exist
+    best_time := 99999999; //Init value of best_time if file does not exist
+    Rewrite_statistics_file();
+    wipe_game_data := false;
+  end;
+  if (mouseButton = 1) and (MouseX > Round(Width / 1.945)) and (MouseY > Height - Round(Height / 3.6)) and (MouseX < Round(Width / 1.531)) and (MouseY < Height - Round(Height / 6.792)) then wipe_game_data := false;
+end;
+//-----------------------------------------------------------------------//
+
+
+//-----------------------------  Private: Submit Wipe Key Up  -----------------------------//
+procedure SubmitWipe_KU(key: integer);
+begin
+  if key = VK_Escape then wipe_game_data := false;
+  if key = VK_Enter then
+  begin
+    best_score := 0; //Init value of best_score if file does not exist
+    best_time := 99999999; //Init value of best_time if file does not exist
+    Rewrite_statistics_file();
+    wipe_game_data := false;
   end;
 end;
 //-----------------------------------------------------------------------//
@@ -163,6 +215,13 @@ begin
     on System.Exception do
       Rewrite_statistics_file();
   end;
+  while wipe_game_data do
+  begin
+    OnMouseDown := SubmitWipe_MD;
+    OnKeyUp := SubmitWipe_KU;
+    SubmitWipe_Interface();
+  end;
+  SetFontName('Tahoma');
   SetFontSize(Round(Height / 20.517));
   DrawTextCentered(0, 0, Width, Round(Height / 7.2), 'Статистика');
   var best_time_to_string: string;
@@ -171,6 +230,9 @@ begin
   SetFontSize(Round(Height / 36));
   TextOut(Round(Width / 32), Round(Height / 6), 'Лучший рекорд: ' + best_score + ' очка');
   TextOut(Round(Width / 32), Round(Height / 3.6), 'Лучшее время: ' + best_time_to_string);
+  SetPenWidth(4);
+  Rectangle(Round(Width / 3.764), Round(Height / 1.263), Round(Width / 1.361), Round(Height / 1.074));
+  DrawTextCentered(Round(Width / 3.764), Round(Height / 1.263), Round(Width / 1.361), Round(Height / 1.074), 'Очистить данные');
   Redraw();
 end;
 //-----------------------------------------------------------------------//
@@ -179,7 +241,7 @@ end;
 //-----------------------------  Statistics Mouse Down  -----------------------------//
 procedure Statistics_MD(MouseX, MouseY, mouseButton: integer);
 begin
-  
+  if (mouseButton = 1) and (MouseX > Round(Width / 3.764)) and (MouseY > Round(Height / 1.263)) and (MouseX < Round(Width / 1.361)) and (MouseY < Round(Height / 1.074)) then wipe_game_data := true;
 end;
 //-----------------------------------------------------------------------//
 
@@ -199,6 +261,7 @@ begin
   SetBrushColor(clTransparent);
   SetFontColor(rgb(255, 255, 255));
   SetPenWidth(Round(Height / 102.835));
+  SetFontName('Times New Roman');
   SetFontSize(Round(Height / 36));
   Rectangle(Round(Width / 14.4), Round(Height / 14.4), Width - Round(Width / 14.4), Height - Round(Height / 14.4));
   DrawTextCentered(Round(Width / 14.4), Round(Height / 14.4), Width - Round(Width / 14.4), Round(Height / 6), 'Вырберите уровень сложности');
@@ -266,6 +329,7 @@ begin
     OnKeyUp := ChangeLevel_KU;
     ChangeLevel_interface();
   end;
+  SetFontName('Tahoma');
   SetFontSize(Round(Height / 20.517));
   DrawTextCentered(0, 0, Width, Round(Height / 7.2), 'Настройки');
   SetFontSize(Round(Height / 36));
