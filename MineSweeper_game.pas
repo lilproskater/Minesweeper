@@ -4,9 +4,6 @@ interface
 
 Uses GraphABC, MineSweeper_Engine, System.Threading;
 
-const StatusBarSize = Round(ScreenHeight / 11.25);
-const Database = 'data/data.dat';
-
 var
   victory, lose, exit_playing: boolean;
   Width, Height: integer;
@@ -19,8 +16,14 @@ procedure CheckGameStatus();
 procedure Drawer();
 
 implementation
+const 
+  StatusBarSize = Round(ScreenHeight / 11.25);
+  Database = 'data/data.dat';
+  Settings = 'data/settings.dat';
+
 var
   bombsInGrid, CellSize, CellsInRow: integer;
+  level: string;
   score, played_seconds: integer;
   best_score, best_time: integer;
   message: string;
@@ -95,7 +98,7 @@ begin
   if grid[y_grid, x_grid].flag_is_put then exit;
   if grid[y_grid, x_grid].number <> 0 then exit;
   //Opening empty cells around except diagonal ones
-  if not grid[y_grid, x_grid].flag_is_put then grid[y_grid, x_grid].Click(1);
+  grid[y_grid, x_grid].Click(1);
   if y_grid > 0 then OpenCells(y_grid - 1, x_grid);
   if y_grid < CellsInRow - 1 then OpenCells(y_grid + 1, x_grid);
   if x_grid > 0 then OpenCells(y_grid, x_grid - 1);
@@ -114,8 +117,8 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Private: Rewrite file  -----------------------------//
-procedure Rewrite_file();
+//-----------------------------  Private: Rewrite Statistics file  -----------------------------//
+procedure Rewrite_statistics_file();
 begin
   Rewrite(filer, Database);
   filer.Writeln(max(best_score, score));
@@ -126,14 +129,19 @@ end;
 //-----------------------------------------------------------------------//
 
 
+//-----------------------------  Private: Rewrite Settings file  -----------------------------//
+procedure Rewrite_settings_file();
+begin
+  Rewrite(filer, Settings);
+  filer.Writeln(level);
+  filer.Close();
+end;
+//-----------------------------------------------------------------------//
+
+
 //-----------------------------  Setup  -----------------------------//
 procedure Setup();
 begin
-  CellsInRow := 16;
-  //Edit CellsInRow by file when Settings are done
-  CellSize := Round(ScreenHeight / CellsInRow / 1.4);
-  bombsInGrid := Round(Sqr(CellsInRow) / 6.4);
-  grid := new Cell[CellsInRow, CellsInRow];
   victory := false;
   lose := false;
   exit_playing := false;
@@ -152,7 +160,7 @@ begin
     filer.Close();
     //67500 is the max value of score (40 x 40 grid - bombsInGrid), where bombsInGrid = 250
     if (best_score_handler.ToInteger < 4) or (best_score_handler.ToInteger > 67500) then
-      Rewrite_file()
+      Rewrite_statistics_file()
     else
     begin
       best_score := best_score_handler.ToInteger;
@@ -160,8 +168,32 @@ begin
     end;
   except 
     on System.Exception do
-      Rewrite_file();
+      Rewrite_statistics_file();
   end;
+  level := 'medium'; //Init value of level if file does not exist
+  try
+    Reset(filer, Settings);
+    var level_handler: string;
+    Readln(filer, level_handler);
+    filer.Close();
+    if (level_handler = 'low') or (level_handler = 'medium') or (level_handler = 'hard') then
+      level := level_handler
+    else
+      Rewrite_settings_file();
+  except
+    on System.Exception do
+      Rewrite_settings_file();
+  end;
+  var LevelToRows: integer;
+  case level of
+    'low': LevelToRows := 8;
+    'medium': LevelToRows := 16;
+    'hard': LevelToRows := 40;
+  end;
+  CellsInRow := LevelToRows;
+  CellSize := Round(ScreenHeight / CellsInRow / 1.4);
+  bombsInGrid := Round(Sqr(CellsInRow) / 6.4);
+  grid := new Cell[CellsInRow, CellsInRow];
 end;
 //-----------------------------------------------------------------------//
 
@@ -242,12 +274,12 @@ begin
   begin
     if (mouseButton = 1) and (MouseX > Round(Width / 36)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 6)) and (MouseY < Height - Round(Height / 36)) then 
     begin
-      Rewrite_file();
+      Rewrite_statistics_file();
       exit_playing := true;
     end;
     if (mouseButton = 1) and (MouseX > Round(Width / 4.235)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 2.666)) and (MouseY < Height - Round(Height / 36)) then 
     begin
-      Rewrite_file();
+      Rewrite_statistics_file();
       SetUp();
       Init_Party();
     end;
@@ -263,12 +295,12 @@ begin
   else show_exit_window := false;
   if (key = VK_Escape) and ((lose) or (victory)) then
   begin
-    Rewrite_file();
+    Rewrite_statistics_file();
     exit_playing := true;
   end;
   if (key = VK_Enter) and ((lose) or (victory)) then
   begin
-    Rewrite_file();
+    Rewrite_statistics_file();
     SetUp();
     Init_Party();
   end;
@@ -297,7 +329,7 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Exit Window Interface  -----------------------------//
+//-----------------------------  Private: Exit Window Interface  -----------------------------//
 procedure ExitWindow_Interface();
 begin
   SetPenColor(rgb(255, 255, 255));
@@ -318,7 +350,7 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Exit Window Mouse Down  -----------------------------//
+//-----------------------------  Private: Exit Window Mouse Down  -----------------------------//
 procedure ExitWindow_MD(MouseX, MouseY, mouseButton: integer);
 begin
   if (mouseButton = 1) and (MouseX > Round(Width / 3.272)) and (MouseY > Height - Round(Height / 3.2)) and (MouseX < Round(Width / 2.25)) and (MouseY < Height - Round(Height / 5.5)) then
@@ -334,8 +366,8 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Exit Window Key Down  -----------------------------//
-procedure ExitWindow_KD(key: integer);
+//-----------------------------  Private: Exit Window Key Down  -----------------------------//
+procedure ExitWindow_KU(key: integer);
 begin
   if key = VK_Escape then show_exit_window := false;
   if key = VK_Enter then 
@@ -383,7 +415,7 @@ begin
   while show_exit_window do
   begin
     OnMouseDown := ExitWindow_MD;
-    OnKeyDown := ExitWindow_KD;
+    OnKeyUp := ExitWindow_KU;
     ExitWindow_Interface();
   end;
   

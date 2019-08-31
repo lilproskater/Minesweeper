@@ -26,12 +26,12 @@ begin
     while main_menu do
     begin
       OnMouseDown := MainMenu_MD;
-      OnKeyDown := MainMenu_KD;
+      OnKeyUp := MainMenu_KU;
       MainMenu_Interface();
       while playing do
       begin
         OnMouseDown := GameMouseDown;
-        OnKeyDown := GameKeyDown;
+        OnKeyUp := GameKeyDown;
         CheckGameStatus();
         Drawer();
         if exit_playing then playing := false;
@@ -39,13 +39,13 @@ begin
       while statistics do
       begin
         OnMouseDown := Statistics_MD;
-        OnKeyDown := Statistics_KD;
+        OnKeyUp := Statistics_KU;
         Statistics_Interface();
       end;
       while settings do
       begin
         OnMouseDown := Settings_MD;
-        OnKeyDown := Settings_KD;
+        OnKeyUp := Settings_KU;
         Settings_Interface();
       end;
       if quit then halt();
