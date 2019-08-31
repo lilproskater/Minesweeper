@@ -375,6 +375,7 @@ begin
   SetPenWidth(1);
   SetPenColor(rgb(0, 0, 0));
   SetBrushColor(rgb(140, 140, 140));
+  SetFontName('Times New Roman');
   Rectangle(0, 0, Width, StatusBarSize);
   //Grid
   for var y := 0 to CellsInRow - 1 do
