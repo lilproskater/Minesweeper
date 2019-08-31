@@ -32,18 +32,6 @@ var
   grid: array [,] of Cell;
   filer: text;
 
-//-----------------------------  Private: Update Window  -----------------------------//
-procedure UpdateWindow();
-begin
-  try
-    Redraw();
-  except
-    on System.Exception do
-  end;
-end;
-//-----------------------------------------------------------------------//
-
-
 //-----------------------------  Private: Count Seconds  -----------------------------//
 procedure Count_Seconds();
 begin
@@ -338,14 +326,14 @@ begin
   SetPenWidth(Round(Height / 102.835));
   var HalfStatusBar :=  Round(StatusBarSize / 2);
   Rectangle(Round(Width / 14.4), Round(Height / 14.4) + HalfStatusBar, Width - Round(Width / 14.4), Height - Round(Height / 14.4) - HalfStatusBar);
-  SetFontSize(Round(Height / 20.571));
+  SetFontSize(Round(Height / 24));
   DrawTextCentered(Round(Width / 9), Round(Height / 10.285) + HalfStatusBar, Width - Round(Width / 14.4), Round(Height / 3.6) + HalfStatusBar, 'Вы действительно хотите покинуть игру?');
   Rectangle(Round(Width / 3.272), Height - Round(Height / 3.2), Round(Width / 2.25), Height - Round(Height / 5.5));
   Rectangle(Round(Width / 1.945), Height - Round(Height / 3.2), Round(Width / 1.531), Height - Round(Height / 5.5));
-  SetFontSize(Round(Height / 24));
+  SetFontSize(Round(Height / 28.8));
   DrawTextCentered(Round(Width / 3.272), Height - Round(Height / 3.2), Round(Width / 2.25), Height - Round(Height / 5.5), 'Да');
   DrawTextCentered(Round(Width / 1.945), Height - Round(Height / 3.2), Round(Width / 1.531), Height - Round(Height / 5.5), 'Нет');
-  UpdateWindow();
+  Redraw();
 end;
 //-----------------------------------------------------------------------//
 
@@ -453,7 +441,7 @@ begin
     DrawTextCentered(Round(Width / 36), Height - Round(Height / 6), Round(Width / 6), Height - Round(Height / 36), '←');
     DrawTextCentered(Round(Width / 4.235), Height - Round(Height / 6), Round(Width / 2.666), Height - Round(Height / 36), '►');
   end;
-  UpdateWindow();
+  Redraw();
 end;
 //-----------------------------------------------------------------------//
 
