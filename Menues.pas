@@ -126,7 +126,7 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Main Menu Key Down  -----------------------------//
+//-----------------------------  Main Menu Key Up  -----------------------------//
 procedure MainMenu_KU(key: integer);
 begin
   if key = VK_Enter then 
@@ -184,7 +184,7 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Statistics Key Down  -----------------------------//
+//-----------------------------  Statistics Key Up  -----------------------------//
 procedure Statistics_KU(key: integer);
 begin
   if key = VK_Escape then statistics := false;
@@ -234,7 +234,7 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Private: Change Level Mouse Down  -----------------------------//
+//-----------------------------  Private: Change Level Key Up  -----------------------------//
 procedure ChangeLevel_KU(key: integer);
 begin
   if key = VK_Escape then change_level := false;  
@@ -293,7 +293,7 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Settings Key Down  -----------------------------//
+//-----------------------------  Settings Key Up  -----------------------------//
 procedure Settings_KU(key: integer);
 begin
   if key = VK_Escape then settings := false;

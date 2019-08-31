@@ -288,7 +288,7 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Game Key Down  -----------------------------//
+//-----------------------------  Game Key Up  -----------------------------//
 procedure GameKeyDown(key: integer);
 begin
   if (key = VK_Escape) and not (lose) and not (victory) then show_exit_window := true
@@ -366,7 +366,7 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Private: Exit Window Key Down  -----------------------------//
+//-----------------------------  Private: Exit Window Key Up  -----------------------------//
 procedure ExitWindow_KU(key: integer);
 begin
   if key = VK_Escape then show_exit_window := false;
