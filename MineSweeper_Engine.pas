@@ -51,8 +51,6 @@ begin
   
   //Number
   SetFontSize(Round(Abs(self.x2 - self.x1) / 2));
-  SetFontName('Times New Roman');
-  SetFontStyle(fsBold);
   
   //Setting number color
   case self.number of
