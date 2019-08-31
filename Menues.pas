@@ -10,17 +10,20 @@ var
  
 procedure MainMenu_Interface();
 procedure MainMenu_MD(MouseX, MouseY, mouseButton: integer);
-procedure MainMenu_KD(key: integer);
+procedure MainMenu_KU(key: integer);
 
 procedure Statistics_Interface();
 procedure Statistics_MD(MouseX, MouseY, mouseButton: integer);
-procedure Statistics_KD(key: integer);
+procedure Statistics_KU(key: integer);
 
 procedure Settings_Interface();
 procedure Settings_MD(MouseX, MouseY, mouseButton: integer);
-procedure Settings_KD(key: integer);
+procedure Settings_KU(key: integer);
 
 implementation
+//Databases
+const GameDB = 'data/data.dat';
+const SettingsDB = 'data/settings.dat';
 
 type
   Button = class
@@ -54,13 +57,27 @@ var
   
   //Statistics
   best_score, best_time: integer;
-
+  
+  //Settings
+  level: string;
+  change_level: boolean;
+  
 //-----------------------------  Private: Rewrite Statistics File  -----------------------------//
 procedure Rewrite_statistics_file();
 begin
-  Rewrite(filer, Database);
+  Rewrite(filer, GameDB);
   filer.Writeln(best_score);
   filer.Writeln(best_time);
+  filer.Close();
+end;
+//-----------------------------------------------------------------------//
+
+
+//-----------------------------  Private: Rewrite Settings File  -----------------------------//
+procedure Rewrite_settings_file();
+begin
+  Rewrite(filer, SettingsDB);
+  filer.Writeln(level);
   filer.Close();
 end;
 //-----------------------------------------------------------------------//
@@ -110,7 +127,7 @@ end;
 
 
 //-----------------------------  Main Menu Key Down  -----------------------------//
-procedure MainMenu_KD(key: integer);
+procedure MainMenu_KU(key: integer);
 begin
   if key = VK_Enter then 
   begin
@@ -129,7 +146,7 @@ begin
   best_score := 0; //Init value of best_score if file does not exist
   best_time := 99999999; //Init value of best_time if file does not exist
   try
-    Reset(filer, Database);
+    Reset(filer, GameDB);
     var best_score_handler, best_time_handler: string;
     Readln(filer, best_score_handler);
     Readln(filer, best_time_handler);
@@ -168,9 +185,59 @@ end;
 
 
 //-----------------------------  Statistics Key Down  -----------------------------//
-procedure Statistics_KD(key: integer);
+procedure Statistics_KU(key: integer);
 begin
   if key = VK_Escape then statistics := false;
+end;
+//-----------------------------------------------------------------------//
+
+
+//-----------------------------  Private: Change Level Interface  -----------------------------//
+procedure ChangeLevel_interface();
+begin
+  SetPenColor(rgb(255, 255, 255));
+  SetBrushColor(clTransparent);
+  SetFontColor(rgb(255, 255, 255));
+  SetPenWidth(Round(Height / 102.835));
+  SetFontSize(Round(Height / 36));
+  Rectangle(Round(Width / 14.4), Round(Height / 14.4), Width - Round(Width / 14.4), Height - Round(Height / 14.4));
+  DrawTextCentered(Round(Width / 14.4), Round(Height / 14.4), Width - Round(Width / 14.4), Round(Height / 6), 'Вырберите уровень сложности');
+  Rectangle(Round(Width / 6.4), Round(Height / 4.8), Round(Width / 2.133), Round(Height / 2.05));
+  Rectangle(Round(Width / 1.828), Round(Height / 4.8), Round(Width / 1.163), Round(Height / 2.05));
+  Rectangle(Round(Width / 2.844), Round(Height / 1.8), Round(Width / 1.505), Round(Height / 1.2));
+  DrawTextCentered(Round(Width / 6.4), Round(Height / 4.8), Round(Width / 2.133), Round(Height / 2.05), '8 × 8');
+  DrawTextCentered(Round(Width / 1.828), Round(Height / 4.8), Round(Width / 1.163), Round(Height / 2.05), '16 × 16');
+  DrawTextCentered(Round(Width / 2.844), Round(Height / 1.8), Round(Width / 1.505), Round(Height / 1.2), '40 × 40');
+  Redraw();
+end;
+//-----------------------------------------------------------------------//
+
+
+//-----------------------------  Private: Change Level Mouse Down  -----------------------------//
+procedure ChangeLevel_MD(MouseX, MouseY, mouseButton: integer);
+begin
+  if (mouseButton = 1) and (MouseX > Round(Width / 6.4)) and (MouseY > Round(Height / 4.8)) and (MouseX < Round(Width / 2.133)) and (MouseY < Round(Height / 2.05)) then
+  begin
+    level := 'low';
+  end;
+  if (mouseButton = 1) and (MouseX > Round(Width / 1.828)) and (MouseY > Round(Height / 4.8)) and (MouseX < Round(Width / 1.163)) and (MouseY < Round(Height / 2.05)) then 
+  begin
+    level := 'medium';
+  end;
+  if (mouseButton = 1) and (MouseX > Round(Width / 2.844)) and (MouseY > Round(Height / 1.8)) and (MouseX < Round(Width / 1.505)) and (MouseY < Round(Height / 1.2)) then
+  begin
+    level := 'hard';
+  end;
+  Rewrite_settings_file();
+  change_level := false;
+end;
+//-----------------------------------------------------------------------//
+
+
+//-----------------------------  Private: Change Level Mouse Down  -----------------------------//
+procedure ChangeLevel_KU(key: integer);
+begin
+  if key = VK_Escape then change_level := false;  
 end;
 //-----------------------------------------------------------------------//
 
@@ -178,14 +245,41 @@ end;
 //-----------------------------  Settings  -----------------------------//
 procedure Settings_Interface();
 begin
-  background.Draw(0, 0, Width, Height);
-  SetFontColor(font_color);
-  SetFontSize(Round(Height / 10));
-  SetFontName('Tahoma');
-  SetFontStyle(fsBold);
-  DrawTextCentered(0, 0, Width, Height, 'Раздел в разработке');
+  ClearWindow(rgb(185, 185, 185));
+  level := 'medium'; //Init value of level if file does not exist
+  try
+    Reset(filer, SettingsDB);
+    var level_handler: string;
+    Readln(filer, level_handler);
+    filer.Close();
+    if (level_handler = 'low') or (level_handler = 'medium') or (level_handler = 'hard') then
+      level := level_handler
+    else
+      Rewrite_settings_file();
+  except
+    on System.Exception do
+      Rewrite_settings_file();
+  end;
+  while change_level do
+  begin
+    OnMouseDown := ChangeLevel_MD;
+    OnKeyUp := ChangeLevel_KU;
+    ChangeLevel_interface();
+  end;
+  SetFontSize(Round(Height / 20.517));
+  DrawTextCentered(0, 0, Width, Round(Height / 7.2), 'Настройки');
   SetFontSize(Round(Height / 36));
-  DrawTextCentered(0, Height - Round(Height / 7.2), Width, Height, 'Нажмите "Esc" чтобы выйти');
+  var level_translate: string;
+  case level of
+    'low': level_translate := '8 × 8';
+    'medium': level_translate := '16 × 16';
+    'hard': level_translate := '40 × 40';
+  end;
+  TextOut(Round(Width / 32), Round(Height / 6), 'Сложность: ');
+  SetPenWidth(4);
+  SetBrushColor(clTransparent);
+  Rectangle(Round(Width / 3.2), Round(Height / 6.67), Round(Width / 1.6), Round(Height / 4.1));
+  DrawTextCentered(Round(Width / 3.2), Round(Height / 6.67), Round(Width / 1.6), Round(Height / 4.1), level_translate);
   Redraw();
 end;
 //-----------------------------------------------------------------------//
@@ -194,13 +288,13 @@ end;
 //-----------------------------  Settings Mouse Down  -----------------------------//
 procedure Settings_MD(MouseX, MouseY, mouseButton: integer);
 begin
-  
+  if (mouseButton = 1) and (MouseX > Round(Width / 3.2)) and (MouseY > Round(Height / 6.67)) and (MouseX <  Round(Width / 1.6)) and (MouseY < Round(Height / 4.1)) then change_level := true;
 end;
 //-----------------------------------------------------------------------//
 
 
 //-----------------------------  Settings Key Down  -----------------------------//
-procedure Settings_KD(key: integer);
+procedure Settings_KU(key: integer);
 begin
   if key = VK_Escape then settings := false;
 end;
