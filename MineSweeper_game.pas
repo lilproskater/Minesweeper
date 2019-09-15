@@ -30,6 +30,7 @@ var
   show_exit_window: boolean;
   timer_thread: Thread;
   grid: array [,] of Cell;
+  double_click_happened: boolean;
   mouseClick_time: DateTime;
   filer: text;
 
@@ -65,15 +66,15 @@ end;
 //-----------------------------  Private: Get Score  -----------------------------//
 function Count_Near_Flags(y, x: integer): integer;
 var counter: integer;
-begin
+begin //Error: Index Out of Bound!!!
   if (x > 0) and (grid[y, x - 1].flag_is_put) then counter += 1;
   if (x < CellsInRow - 1) and (grid[y, x + 1].flag_is_put) then counter += 1;
   if (y > 0) and (grid[y - 1, x].flag_is_put) then counter += 1;
   if (y < CellsInRow - 1) and (grid[y + 1, x].flag_is_put) then counter += 1;
   if (x > 0) and (y > 0) and (grid[y - 1, x - 1].flag_is_put) then counter += 1;
-  if (x < CellsInRow) and (y > 0) and (grid[y - 1, x + 1].flag_is_put) then counter += 1;
-  if (x > 0) and (y < CellsInRow) and (grid[y + 1, x - 1].flag_is_put) then counter += 1;
-  if (x < CellsInRow) and (y < CellsInRow) and (grid[y + 1, x + 1].flag_is_put) then counter += 1;
+  if (x < CellsInRow - 1) and (y > 0) and (grid[y - 1, x + 1].flag_is_put) then counter += 1;
+  if (x > 0) and (y < CellsInRow - 1) and (grid[y + 1, x - 1].flag_is_put) then counter += 1;
+  if (x < CellsInRow - 1) and (y < CellsInRow - 1) and (grid[y + 1, x + 1].flag_is_put) then counter += 1;
   result := counter;  
 end;
 //-----------------------------------------------------------------------//
@@ -91,6 +92,11 @@ begin
     except
       on System.Exception do
     end;
+  if double_click_happened then
+  begin
+    score := Round(score * 1.5);
+    double_click_happened := false;
+  end;
   result := counter;
 end;
 //-----------------------------------------------------------------------//
@@ -272,30 +278,31 @@ begin
         if (grid[y, x].revealed) and (Count_Near_Flags(y, x) = grid[y, x].number) then //On opened cell
         begin
           if x > 0 then
-            if grid[y, x - 1].number > 0 then grid[y, x - 1].Click(1)
+            if (grid[y, x - 1].number > 0) or (grid[y, x - 1].contains_mine) then grid[y, x - 1].Click(1)
             else OpenCells(y, x - 1);
           if x < CellsInRow - 1 then
-            if grid[y, x + 1].number > 0 then grid[y, x + 1].Click(1)
+            if (grid[y, x + 1].number > 0) or (grid[y, x + 1].contains_mine) then grid[y, x + 1].Click(1)
             else OpenCells(y, x + 1);
           if y > 0 then
-            if grid[y - 1, x].number > 0 then grid[y - 1, x].Click(1)
+            if (grid[y - 1, x].number > 0) or (grid[y - 1, x].contains_mine) then grid[y - 1, x].Click(1)
             else OpenCells(y - 1, x);
           if y < CellsInRow - 1 then
-            if grid[y + 1, x].number > 0 then grid[y + 1, x].Click(1)
+            if (grid[y + 1, x].number > 0) or (grid[y + 1, x].contains_mine) then grid[y + 1, x].Click(1)
             else OpenCells(y + 1, x);
           if (x > 0) and (y > 0) then
-            if grid[y - 1, x - 1].number > 0 then grid[y - 1, x - 1].Click(1)
+            if (grid[y - 1, x - 1].number > 0) or (grid[y - 1, x - 1].contains_mine) then grid[y - 1, x - 1].Click(1)
             else OpenCells(y - 1, x - 1);
-          if (x < CellsInRow) and (y > 0) then
-            if grid[y - 1, x + 1].number > 0 then grid[y - 1, x + 1].Click(1)
+          if (x < CellsInRow - 1) and (y > 0) then
+            if (grid[y - 1, x + 1].number > 0) or (grid[y - 1, x + 1].contains_mine) then grid[y - 1, x + 1].Click(1)
             else OpenCells(y - 1, x + 1);
-          if (x > 0) and (y < CellsInRow) then
-            if grid[y + 1, x - 1].number > 0 then grid[y + 1, x - 1].Click(1)
+          if (x > 0) and (y < CellsInRow - 1) then
+            if (grid[y + 1, x - 1].number > 0) or (grid[y + 1, x - 1].contains_mine) then grid[y + 1, x - 1].Click(1)
             else OpenCells(y + 1, x - 1);
-          if (x < CellsInRow) and (y < CellsInRow) then
-            if grid[y + 1, x + 1].number > 0 then grid[y + 1, x + 1].Click(1)
+          if (x < CellsInRow - 1) and (y < CellsInRow - 1) then
+            if (grid[y + 1, x + 1].number > 0) or (grid[y + 1, x + 1].contains_mine) then grid[y + 1, x + 1].Click(1)
             else OpenCells(y + 1, x + 1);
         end;
+        double_click_happened := true;
       end;
       score := GetScore();
       if score > best_score then message := 'Новый рекорд!';
