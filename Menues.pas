@@ -60,7 +60,7 @@ var
   wipe_game_data: boolean;
   
   //Settings
-  level: string;
+  level, training_mode: string;
   change_level: boolean;
   
 //-----------------------------  Private: Rewrite Statistics File  -----------------------------//
@@ -79,6 +79,7 @@ procedure Rewrite_settings_file();
 begin
   Rewrite(filer, SettingsDB);
   filer.Writeln(level);
+  filer.Writeln(training_mode);
   filer.Close();
 end;
 //-----------------------------------------------------------------------//
@@ -281,15 +282,15 @@ procedure ChangeLevel_MD(MouseX, MouseY, mouseButton: integer);
 begin
   if (mouseButton = 1) and (MouseX > Round(Width / 6.4)) and (MouseY > Round(Height / 4.8)) and (MouseX < Round(Width / 2.133)) and (MouseY < Round(Height / 2.05)) then
   begin
-    level := 'low';
+    level := 'level: low';
   end;
   if (mouseButton = 1) and (MouseX > Round(Width / 1.828)) and (MouseY > Round(Height / 4.8)) and (MouseX < Round(Width / 1.163)) and (MouseY < Round(Height / 2.05)) then 
   begin
-    level := 'medium';
+    level := 'level: medium';
   end;
   if (mouseButton = 1) and (MouseX > Round(Width / 2.844)) and (MouseY > Round(Height / 1.8)) and (MouseX < Round(Width / 1.505)) and (MouseY < Round(Height / 1.2)) then
   begin
-    level := 'hard';
+    level := 'level: hard';
   end;
   Rewrite_settings_file();
   change_level := false;
@@ -309,16 +310,21 @@ end;
 procedure Settings_Interface();
 begin
   ClearWindow(rgb(185, 185, 185));
-  level := 'medium'; //Init value of level if file does not exist
+  level := 'level: medium'; //Init value of level if file does not exist
+  training_mode := 'training_mode: false'; //Init value of training mode if file does not exist
   try
     Reset(filer, SettingsDB);
-    var level_handler: string;
+    var level_handler, training_mode_handler: string;
     Readln(filer, level_handler);
+    Readln(filer, training_mode_handler);
     filer.Close();
-    if (level_handler = 'low') or (level_handler = 'medium') or (level_handler = 'hard') then
+    if (level_handler = 'level: low') or (level_handler = 'level: medium') or (level_handler = 'level: hard') then
       level := level_handler
     else
       Rewrite_settings_file();
+    if (training_mode_handler = 'training_mode: false') or (training_mode_handler = 'training_mode: true') then 
+      training_mode := training_mode_handler
+    else Rewrite_settings_file();
   except
     on System.Exception do
       Rewrite_settings_file();
@@ -333,17 +339,25 @@ begin
   SetFontSize(Round(Height / 20.517));
   DrawTextCentered(0, 0, Width, Round(Height / 7.2), 'Настройки');
   SetFontSize(Round(Height / 36));
-  var level_translate: string;
+  var level_translate, training_mode_translate: string;
   case level of
-    'low': level_translate := '8 × 8';
-    'medium': level_translate := '16 × 16';
-    'hard': level_translate := '40 × 40';
+    'level: low': level_translate := '8 × 8';
+    'level: medium': level_translate := '16 × 16';
+    'level: hard': level_translate := '40 × 40';
+  end;
+  case training_mode of
+    'training_mode: true': training_mode_translate := '✓';
+    'training_mode: false': training_mode_translate := '✗';
   end;
   TextOut(Round(Width / 32), Round(Height / 6), 'Сложность: ');
   SetPenWidth(4);
   SetBrushColor(clTransparent);
   Rectangle(Round(Width / 3.2), Round(Height / 6.67), Round(Width / 1.6), Round(Height / 4.1));
   DrawTextCentered(Round(Width / 3.2), Round(Height / 6.67), Round(Width / 1.6), Round(Height / 4.1), level_translate);
+  TextOut(Round(Width / 32), Round(Height / 3.41), 'Режим тренировки: ');
+  Rectangle(Round(Width / 2), Round(Height / 3.78), Round(Width / 1.6), Round(Height / 2.66));
+  SetFontSize(Round(Height / 20.57));
+  DrawTextCentered(Round(Width / 2), Round(Height / 3.78), Round(Width / 1.6), Round(Height / 2.66), training_mode_translate);
   Redraw();
 end;
 //-----------------------------------------------------------------------//
@@ -353,6 +367,12 @@ end;
 procedure Settings_MD(MouseX, MouseY, mouseButton: integer);
 begin
   if (mouseButton = 1) and (MouseX > Round(Width / 3.2)) and (MouseY > Round(Height / 6.67)) and (MouseX <  Round(Width / 1.6)) and (MouseY < Round(Height / 4.1)) then change_level := true;
+  if (mouseButton = 1) and (MouseX > Round(Width / 2)) and (MouseY > Round(Height / 3.78)) and (MouseX < Round(Width / 1.6)) and (MouseY < Round(Height / 2.66)) then
+  begin
+    if training_mode = 'training_mode: false' then training_mode := 'training_mode: true'
+    else if training_mode = 'training_mode: true' then training_mode := 'training_mode: false';
+    Rewrite_settings_file();
+  end;
 end;
 //-----------------------------------------------------------------------//
 
