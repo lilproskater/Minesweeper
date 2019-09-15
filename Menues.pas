@@ -70,7 +70,6 @@ begin
     Rewrite(filer, GameDB);
     filer.Writeln(best_score);
     filer.Writeln(best_time);
-    filer.Close();
   finally
     filer.Close();
   end;
