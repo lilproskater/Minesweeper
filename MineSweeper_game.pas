@@ -21,16 +21,26 @@ const
   Database = 'data/data.dat';
   Settings = 'data/settings.dat';
 
+type mouse_pressed = class
+  time: datetime;
+  grid_y, grid_x: integer;
+  constructor Create();
+  begin
+    grid_x := -1;
+    grid_y := -1;
+  end;
+end;
+
 var
   bombsInGrid, CellSize, CellsInRow: integer;
-  level,training_mode: string;
+  level, training_mode: string;
   score, played_seconds: integer;
   best_score, best_time: integer;
   message: string;
   show_exit_window: boolean;
   timer_thread: Thread;
   grid: array [,] of Cell;
-  mouseClick_time: DateTime;
+  mouseClick: mouse_pressed;
   filer: text;
 
 //-----------------------------  Private: Count Seconds  -----------------------------//
@@ -193,6 +203,7 @@ begin
   best_score := 0; //Init value of best_score if file does not exist
   best_time := 99999999; //Init value of best_time if file does not exist
   message := '';
+  mouseClick := new mouse_pressed();
   try //Because file may not exsist
     Reset(filer, Database);
     var best_score_handler, best_time_handler: string;
@@ -309,7 +320,7 @@ begin
       var AlreadyOpened := CountOpenedCells();
       if (grid[y, x].number <> 0) or (grid[y, x].contains_mine) then grid[y, x].Click(1)
       else if not grid[y, x].flag_is_put then OpenCells(y, x);
-      if (DateTime.Now - mouseClick_time).TotalSeconds < 0.5 then //Double Click
+      if ((DateTime.Now - mouseClick.time).TotalSeconds < 0.5) and (mouseClick.grid_x = x) and (mouseClick.grid_y = y) then //Double Click on one cell
       begin
         if (grid[y, x].revealed) and (Count_Near_Flags(y, x) = grid[y, x].number) then //On opened cell
         begin
@@ -339,10 +350,12 @@ begin
             else OpenCells(y + 1, x + 1);
         end;
       end;
-      if (DateTime.Now - mouseClick_time).TotalSeconds < 0.9 then score += (CountOpenedCells() - AlreadyOpened) * 100
+      if (DateTime.Now - mouseClick.time).TotalSeconds < 0.9 then score += (CountOpenedCells() - AlreadyOpened) * 100
       else score += (CountOpenedCells() - AlreadyOpened) * 50;
       if (score > best_score) and (training_mode = 'training_mode: false') then message := 'Новый рекорд!';
-      mouseClick_time := DateTime.Now;
+      mouseClick.time := DateTime.Now;
+      mouseClick.grid_x := x;
+      mouseClick.grid_y := y;
     end
     else 
     begin
