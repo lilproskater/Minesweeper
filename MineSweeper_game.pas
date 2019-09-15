@@ -52,11 +52,11 @@ begin
   if grid_cell.revealed then SetBrushColor(rgb(153, 153, 153))
   else SetBrushColor(rgb(204, 204, 204));
   
-  // Flag Color
-  if grid_cell.flag_is_put then SetBrushColor(rgb(255, 0, 0));
-  
   // Mine Color 
   if (grid_cell.contains_mine) and ((training_mode = 'training_mode: true') or mine_is_pressed) then SetBrushColor(rgb(0, 0, 0));
+  
+  // Flag Color
+  if grid_cell.flag_is_put then SetBrushColor(rgb(255, 0, 0));
   
   // After lose
   if (grid_cell.contains_mine) and (grid_cell.flag_is_put) and (mine_is_pressed) then SetBrushColor(rgb(102, 0, 0));
