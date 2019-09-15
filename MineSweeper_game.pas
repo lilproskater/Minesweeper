@@ -268,7 +268,6 @@ begin
           else OpenCells(y, x);
         end;
       end;
-      score += (CountOpenedCells() - AlreadyOpened) * 50;
       if (DateTime.Now - mouseClick_time).TotalSeconds < 0.5 then //Double Click
       begin
         if (grid[y, x].revealed) and (Count_Near_Flags(y, x) = grid[y, x].number) then //On opened cell
@@ -297,9 +296,10 @@ begin
           if (x < CellsInRow - 1) and (y < CellsInRow - 1) then
             if (grid[y + 1, x + 1].number > 0) or (grid[y + 1, x + 1].contains_mine) then grid[y + 1, x + 1].Click(1)
             else OpenCells(y + 1, x + 1);
-          score += (CountOpenedCells() - AlreadyOpened) * 100;
         end;
       end;
+      if (DateTime.Now - mouseClick_time).TotalSeconds < 0.9 then score += (CountOpenedCells() - AlreadyOpened) * 100
+      else score += (CountOpenedCells() - AlreadyOpened) * 50;
       if score > best_score then message := 'Новый рекорд!';
       mouseClick_time := DateTime.Now;
     end
