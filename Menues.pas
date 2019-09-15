@@ -66,10 +66,14 @@ var
 //-----------------------------  Private: Rewrite Statistics File  -----------------------------//
 procedure Rewrite_statistics_file();
 begin
-  Rewrite(filer, GameDB);
-  filer.Writeln(best_score);
-  filer.Writeln(best_time);
-  filer.Close();
+  try
+    Rewrite(filer, GameDB);
+    filer.Writeln(best_score);
+    filer.Writeln(best_time);
+    filer.Close();
+  finally
+    filer.Close();
+  end;
 end;
 //-----------------------------------------------------------------------//
 
@@ -77,10 +81,13 @@ end;
 //-----------------------------  Private: Rewrite Settings File  -----------------------------//
 procedure Rewrite_settings_file();
 begin
-  Rewrite(filer, SettingsDB);
-  filer.Writeln(level);
-  filer.Writeln(training_mode);
-  filer.Close();
+  try
+    Rewrite(filer, SettingsDB);
+    filer.Writeln(level);
+    filer.Writeln(training_mode);
+  finally
+    filer.Close();
+  end;
 end;
 //-----------------------------------------------------------------------//
 
