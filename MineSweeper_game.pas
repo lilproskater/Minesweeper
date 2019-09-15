@@ -261,7 +261,6 @@ begin
     else continue;
     bombs_counter -= 1;    
   end;
-  
   //Setting Up Numbers
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
@@ -291,19 +290,15 @@ begin
     var x := Trunc(MouseX / CellSize);
     if mouseButton = 1 then
     begin
-      var AlreadyOpened := CountOpenedCells();
-      if (grid[y, x].number <> 0) or (grid[y, x].contains_mine) then grid[y, x].Click(1)
-      else if not grid[y, x].flag_is_put then OpenCells(y, x);
-      if (first_click)then 
+      if first_click then 
       begin
         first_click := false;
         timer_thread := new Thread(Count_Seconds);
         timer_thread.Start();
         if training_mode = 'training_mode: false' then 
         begin
-          if mine_is_pressed then
+          if grid[y, x].contains_mine then
           begin
-            mine_is_pressed := false;
             while grid[y, x].contains_mine do
               Init_Party();
             if grid[y, x].number <> 0 then grid[y, x].Click(1)
@@ -311,6 +306,9 @@ begin
           end;
         end;
       end;
+      var AlreadyOpened := CountOpenedCells();
+      if (grid[y, x].number <> 0) or (grid[y, x].contains_mine) then grid[y, x].Click(1)
+      else if not grid[y, x].flag_is_put then OpenCells(y, x);
       if (DateTime.Now - mouseClick_time).TotalSeconds < 0.5 then //Double Click
       begin
         if (grid[y, x].revealed) and (Count_Near_Flags(y, x) = grid[y, x].number) then //On opened cell
