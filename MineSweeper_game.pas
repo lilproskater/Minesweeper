@@ -79,15 +79,15 @@ end;
 //-----------------------------------------------------------------------//
 
 
-//-----------------------------  Private: Get Score  -----------------------------//
-function GetScore(): integer;
+//-----------------------------  Private: Get Opened Cells  -----------------------------//
+function CountOpenedCells(): integer;
 var
   counter: integer;
 begin
   for var y := 0 to CellsInRow - 1 do
     for var x := 0 to CellsInRow - 1 do
     try // Because Not all objects might be initialized yet
-      if (grid[y, x].revealed) and not (grid[y, x].contains_mine) then counter += 50;
+      if (grid[y, x].revealed) and not (grid[y, x].contains_mine) then counter += 1;
     except
       on System.Exception do
     end;
@@ -251,6 +251,7 @@ begin
     var x := Trunc(MouseX / CellSize);
     if mouseButton = 1 then
     begin
+      var AlreadyOpened := CountOpenedCells();
       if (grid[y, x].number <> 0) or (grid[y, x].contains_mine) then grid[y, x].Click(1)
       else if not grid[y, x].flag_is_put then OpenCells(y, x);
       if first_click then 
@@ -267,6 +268,7 @@ begin
           else OpenCells(y, x);
         end;
       end;
+      score += (CountOpenedCells() - AlreadyOpened) * 50;
       if (DateTime.Now - mouseClick_time).TotalSeconds < 0.5 then //Double Click
       begin
         if (grid[y, x].revealed) and (Count_Near_Flags(y, x) = grid[y, x].number) then //On opened cell
@@ -295,9 +297,9 @@ begin
           if (x < CellsInRow - 1) and (y < CellsInRow - 1) then
             if (grid[y + 1, x + 1].number > 0) or (grid[y + 1, x + 1].contains_mine) then grid[y + 1, x + 1].Click(1)
             else OpenCells(y + 1, x + 1);
+          score += (CountOpenedCells() - AlreadyOpened) * 100;
         end;
       end;
-      score := GetScore();
       if score > best_score then message := 'Новый рекорд!';
       mouseClick_time := DateTime.Now;
     end
