@@ -33,36 +33,10 @@ begin
 end;
 
 procedure Cell.Draw();
-begin
-  // Cell color
-  if self.revealed then SetBrushColor(rgb(153, 153, 153))
-  else SetBrushColor(rgb(204, 204, 204));
-  
-  // Flag Color
-  if self.flag_is_put then SetBrushColor(rgb(255, 0, 0));
-  
-  // Mine Color 
-  if (self.contains_mine) and (mine_is_pressed) then SetBrushColor(rgb(0, 0, 0));
-  
-  // After lose
-  if (self.contains_mine) and (self.flag_is_put) and (mine_is_pressed) then SetBrushColor(rgb(102, 0, 0));
-  
+begin  
   Rectangle(self.x1, self.y1, self.x2, self.y2);
-  
   //Number
   SetFontSize(Round(Abs(self.x2 - self.x1) / 2));
-  
-  //Setting number color
-  case self.number of
-    1: SetFontColor(rgb(0, 0, 255));
-    2: SetFontColor(rgb(0, 153, 0));
-    3: SetFontColor(rgb(255, 0, 0));
-    4: SetFontColor(rgb(0, 0, 153));
-    5: SetFontColor(rgb(102, 0, 0));
-    6: SetFontColor(rgb(163, 73, 164));
-    7: SetFontColor(rgb(255, 128, 0));
-    8: SetFontColor(rgb(0, 0, 0));
-  end;
   if (self.number > 0) and (self.revealed) and not (self.contains_mine) then DrawTextCentered(x1, y1, x2, y2, self.number);
 end;
 
