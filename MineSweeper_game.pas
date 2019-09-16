@@ -18,7 +18,9 @@ procedure Drawer();
 implementation
 const 
   StatusBarSize = Round(ScreenHeight / 11.25);
-  Database = 'data/data.dat';
+  const GameDB_Low = 'data/data_low.dat';
+  const GameDB_Mid = 'data/data_mid.dat';
+  const GameDB_Hard = 'data/data_high.dat';
   Settings = 'data/settings.dat';
 
 type mouse_pressed = class
@@ -34,6 +36,7 @@ end;
 var
   bombsInGrid, CellSize, CellsInRow: integer;
   level, training_mode: string;
+  db_level: string;
   score, played_seconds: integer;
   best_score, best_time: integer;
   message: string;
@@ -165,15 +168,18 @@ end;
 
 
 //-----------------------------  Private: Rewrite Statistics file  -----------------------------//
-procedure Rewrite_statistics_file();
+procedure Rewrite_statistics_file(level_file: string);
 begin
   if training_mode = 'training_mode: false' then
   begin
-    Rewrite(filer, Database);
-    filer.Writeln(max(best_score, score));
-    if victory then filer.Writeln(min(best_time, played_seconds))
-    else filer.Writeln(best_time);
-    filer.Close();
+    try
+      Rewrite(filer, level_file);
+      filer.Writeln(max(best_score, score));
+      if victory then filer.Writeln(min(best_time, played_seconds))
+      else filer.Writeln(best_time);
+    finally
+      filer.Close();
+    end;
   end;
 end;
 //-----------------------------------------------------------------------//
@@ -204,24 +210,6 @@ begin
   best_time := 99999999; //Init value of best_time if file does not exist
   message := '';
   mouseClick := new mouse_pressed();
-  try //Because file may not exsist
-    Reset(filer, Database);
-    var best_score_handler, best_time_handler: string;
-    Readln(filer, best_score_handler);
-    Readln(filer, best_time_handler);
-    filer.Close();
-    //67500 is the max value of score (40 x 40 grid - bombsInGrid), where bombsInGrid = 250
-    if (best_score_handler.ToInteger < 4) or (best_score_handler.ToInteger > 67500) then
-      Rewrite_statistics_file()
-    else
-    begin
-      best_score := best_score_handler.ToInteger;
-      best_time := best_time_handler.ToInteger;
-    end;
-  except 
-    on System.Exception do
-      Rewrite_statistics_file();
-  end;
   level := 'level: medium'; //Init value of level if file does not exist
   training_mode := 'training_mode: false'; //Init value of training mode if file does not exist
   try
@@ -246,6 +234,23 @@ begin
     'level: low': LevelToRows := 8;
     'level: medium': LevelToRows := 16;
     'level: hard': LevelToRows := 40;
+  end;
+  case level of
+    'level: low': db_level := GameDB_Low;
+    'level: medium': db_level := GameDB_Mid;
+    'level: hard': db_level := GameDB_Hard;
+  end;
+  try //Because file may not exsist
+    Reset(filer, db_level);
+    var best_score_handler, best_time_handler: string;
+    Readln(filer, best_score_handler);
+    Readln(filer, best_time_handler);
+    filer.Close();
+    best_score := best_score_handler.ToInteger;
+    best_time := best_time_handler.ToInteger;
+  except 
+    on System.Exception do
+      Rewrite_statistics_file(db_level);
   end;
   CellsInRow := LevelToRows;
   CellSize := Round(ScreenHeight / CellsInRow / 1.4);
@@ -367,12 +372,12 @@ begin
   begin
     if (mouseButton = 1) and (MouseX > Round(Width / 36)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 6)) and (MouseY < Height - Round(Height / 36)) then 
     begin
-      Rewrite_statistics_file();
+      Rewrite_statistics_file(db_level);
       exit_playing := true;
     end;
     if (mouseButton = 1) and (MouseX > Round(Width / 4.235)) and (MouseY > Height - Round(Height / 6)) and (MouseX < Round(Width / 2.666)) and (MouseY < Height - Round(Height / 36)) then 
     begin
-      Rewrite_statistics_file();
+      Rewrite_statistics_file(db_level);
       SetUp();
       Init_Party();
     end;
@@ -388,12 +393,12 @@ begin
   else show_exit_window := false;
   if (key = VK_Escape) and ((lose) or (victory)) then
   begin
-    Rewrite_statistics_file();
+    Rewrite_statistics_file(db_level);
     exit_playing := true;
   end;
   if (key = VK_Enter) and ((lose) or (victory)) then
   begin
-    Rewrite_statistics_file();
+    Rewrite_statistics_file(db_level);
     SetUp();
     Init_Party();
   end;

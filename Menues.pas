@@ -22,7 +22,9 @@ procedure Settings_KU(key: integer);
 
 implementation
 //Databases
-const GameDB = 'data/data.dat';
+const GameDB_Low = 'data/data_low.dat';
+const GameDB_Mid = 'data/data_mid.dat';
+const GameDB_Hard = 'data/data_high.dat';
 const SettingsDB = 'data/settings.dat';
 
 type
@@ -64,10 +66,10 @@ var
   change_level: boolean;
   
 //-----------------------------  Private: Rewrite Statistics File  -----------------------------//
-procedure Rewrite_statistics_file();
+procedure Rewrite_statistics_file(level_file: string);
 begin
   try
-    Rewrite(filer, GameDB);
+    Rewrite(filer, level_file);
     filer.Writeln(best_score);
     filer.Writeln(best_time);
   finally
@@ -175,7 +177,13 @@ begin
   begin
     best_score := 0; //Init value of best_score if file does not exist
     best_time := 99999999; //Init value of best_time if file does not exist
-    Rewrite_statistics_file();
+    var db_level: string;
+    case level of
+      'level: low': db_level := GameDB_low;
+      'level: medium': db_level := GameDB_mid;
+      'level: hard': db_level := GameDB_hard;
+    end;
+    Rewrite_statistics_file(db_level);
     wipe_game_data := false;
   end;
   if (mouseButton = 1) and (MouseX > Round(Width / 1.945)) and (MouseY > Height - Round(Height / 3.6)) and (MouseX < Round(Width / 1.531)) and (MouseY < Height - Round(Height / 6.792)) then wipe_game_data := false;
@@ -191,7 +199,13 @@ begin
   begin
     best_score := 0; //Init value of best_score if file does not exist
     best_time := 99999999; //Init value of best_time if file does not exist
-    Rewrite_statistics_file();
+    var db_level: string;
+    case level of
+      'level: low': db_level := GameDB_low;
+      'level: medium': db_level := GameDB_mid;
+      'level: hard': db_level := GameDB_hard;
+    end;
+    Rewrite_statistics_file(db_level);
     wipe_game_data := false;
   end;
 end;
@@ -204,23 +218,37 @@ begin
   ClearWindow(rgb(185, 185, 185));
   best_score := 0; //Init value of best_score if file does not exist
   best_time := 99999999; //Init value of best_time if file does not exist
+  level := 'level: medium'; //Init value of level if file does not exist
   try
-    Reset(filer, GameDB);
+    Reset(filer, SettingsDB);
+    var level_handler: string;
+    Readln(filer, level_handler);
+    filer.Close();
+    if (level_handler = 'level: low') or (level_handler = 'level: medium') or (level_handler = 'level: hard') then
+      level := level_handler
+    else
+      Rewrite_settings_file();
+  except
+    on System.Exception do
+      Rewrite_settings_file();
+  end;
+  var db_level: string;
+  case level of
+    'level: low': db_level := GameDB_low;
+    'level: medium': db_level := GameDB_mid;
+    'level: hard': db_level := GameDB_hard;
+  end;
+  try
+    Reset(filer, db_level);
     var best_score_handler, best_time_handler: string;
     Readln(filer, best_score_handler);
     Readln(filer, best_time_handler);
     filer.Close();
-    //67500 is the max value of score (40 x 40 grid - bombsInGrid), where bombsInGrid = 250
-    if (best_score_handler.ToInteger < 4) or (best_score_handler.ToInteger > 67500) then
-      Rewrite_statistics_file()
-    else
-    begin
-      best_score := best_score_handler.ToInteger;
-      best_time := best_time_handler.ToInteger;
-    end;
+    best_score := best_score_handler.ToInteger;
+    best_time := best_time_handler.ToInteger;
   except
     on System.Exception do
-      Rewrite_statistics_file();
+      Rewrite_statistics_file(db_level);
   end;
   while wipe_game_data do
   begin
