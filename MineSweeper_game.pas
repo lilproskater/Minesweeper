@@ -206,8 +206,6 @@ begin
   mine_is_pressed := false;
   played_seconds := 0;
   score := 0;
-  best_score := 0; //Init value of best_score if file does not exist
-  best_time := 99999999; //Init value of best_time if file does not exist
   message := '';
   mouseClick := new mouse_pressed();
   level := 'level: medium'; //Init value of level if file does not exist
@@ -240,6 +238,8 @@ begin
     'level: medium': db_level := GameDB_Mid;
     'level: hard': db_level := GameDB_Hard;
   end;
+  best_score := 0; //Init value of best_score if file does not exist
+  best_time := 99999999; //Init value of best_time if file does not exist
   try //Because file may not exsist
     Reset(filer, db_level);
     var best_score_handler, best_time_handler: string;
