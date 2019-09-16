@@ -238,6 +238,12 @@ begin
     'level: medium': db_level := GameDB_mid;
     'level: hard': db_level := GameDB_hard;
   end;
+  var level_translate: string;
+  case level of
+    'level: low': level_translate := '8 × 8';
+    'level: medium': level_translate := '16 × 16';
+    'level: hard': level_translate := '40 × 40';
+  end;
   try
     Reset(filer, db_level);
     var best_score_handler, best_time_handler: string;
@@ -263,8 +269,9 @@ begin
   if best_time = 99999999 then best_time_to_string := 'Нет лучшего времени'
   else best_time_to_string := best_time.ToString + ' сек.';
   SetFontSize(Round(Height / 36));
-  TextOut(Round(Width / 32), Round(Height / 6), 'Лучший рекорд: ' + best_score + ' очка');
-  TextOut(Round(Width / 32), Round(Height / 3.6), 'Лучшее время: ' + best_time_to_string);
+  TextOut(Round(Width / 32), Round(Height / 6), 'Уровень: ' + level_translate);
+  TextOut(Round(Width / 32), Round(Height / 3.6), 'Лучший рекорд: ' + best_score + ' очка');
+  TextOut(Round(Width / 32), Round(Height / 2.57), 'Лучшее время: ' + best_time_to_string);
   SetPenWidth(4);
   Rectangle(Round(Width / 3.764), Round(Height / 1.263), Round(Width / 1.361), Round(Height / 1.074));
   DrawTextCentered(Round(Width / 3.764), Round(Height / 1.263), Round(Width / 1.361), Round(Height / 1.074), 'Очистить данные');
